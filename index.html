@@ -463,8 +463,8 @@ function lanternSVG(x, y, rise, dur, delay = 0) {
 // ?push=ntfy:<topic>  (ntfy app)   or   ?push=bark:<device-key>  (Bark app, works well in mainland China)
 // ?call=<url opened when the notification is tapped>, e.g. facetime://you@icloud.com  or  weixin://
 const PUSH_TEXT = {
-  parents: { title: 'Peekabloom · 小小一瞥', body: '刚刚奕辰也在看她的钟 ✿ 想跟她通个电话吗？' },
-  me: { title: 'Peekabloom · 小小一瞥', body: '爸妈刚刚也在看他们的钟 ✿ 想跟他们通个电话吗？' }
+  parents: { title: 'Peekabloom', body: 'Yichen was looking at her clock just now ✿ Want to give her a call?' },
+  me: { title: 'Peekabloom', body: 'Mom & Dad were looking at their clock just now ✿ Want to give them a call?' }
 };
 const Push = {
   cfg: Q.get('push'), call: Q.get('call'), gapH: parseFloat(Q.get('pushgap') || '3'), last: '', sentKeys: new Set(),
