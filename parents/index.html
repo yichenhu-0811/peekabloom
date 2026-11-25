@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="theme-color" content="#000000">
+<title>Peekabloom</title>
+<style>
+:root{
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,"Songti SC",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Helvetica Neue","PingFang SC",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#000;color:#eee;font-family:var(--sans);
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+body.clockpage{overflow:hidden;touch-action:none}
+.stage{position:fixed;inset:0;display:grid;place-items:center;background:#000}
+.pb-svg{display:block;width:var(--size,100vmin);height:var(--size,100vmin);overflow:visible}
+.stage .pb-svg{transform:translate(var(--ox,0px),var(--oy,0px))}
+.pb-svg text{font-family:var(--serif)}
+
+/* ---------- garden ---------- */
+.flw{transform-box:fill-box;transform-origin:50% 100%}
+.sway{animation:sway calc(var(--d,5s) * var(--slow,1)) ease-in-out var(--dl,0s) infinite alternate}
+@keyframes sway{from{transform:rotate(calc(var(--a,3deg) * -1))}to{transform:rotate(var(--a,3deg))}}
+.bl{transform-box:fill-box;transform-origin:50% 50%;transform:scale(var(--open,1));transition:transform 4s ease}
+.fresh{animation:pop 1.8s cubic-bezier(.2,1.5,.4,1) both}
+.intro{animation:pop 1.4s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes pop{0%{transform:scale(0)}100%{transform:scale(1)}}
+.halo{animation:halo 3.2s ease-in-out infinite}
+@keyframes halo{0%,100%{opacity:.25}50%{opacity:.7}}
+.fresh .halo{animation:halo 1.2s ease-in-out 3, halo 3.2s ease-in-out 3.6s infinite}
+.mglow{animation:mglow 4s ease-in-out infinite}
+@keyframes mglow{0%,100%{opacity:.55}50%{opacity:1}}
+.twk{animation:twk 2.6s ease-in-out infinite}
+@keyframes twk{0%,100%{opacity:.15}50%{opacity:1}}
+
+/* ---------- scenes ---------- */
+.scene{opacity:0;transition:opacity 1.6s ease}
+.scene.on{opacity:1}
+.fade{transition:opacity 1.2s ease}
+.hid{display:none}
+.smoke{animation:smoke 4s ease-out infinite;transform-box:fill-box;transform-origin:50% 50%}
+@keyframes smoke{0%{transform:translate(0,0) scale(.6);opacity:0}20%{opacity:.6}100%{transform:translate(10px,-46px) scale(1.6);opacity:0}}
+.star{animation:twk 3s ease-in-out infinite}
+.firefly{animation:ff 7s ease-in-out infinite alternate}
+@keyframes ff{0%{transform:translate(0,0)}33%{transform:translate(18px,-14px)}66%{transform:translate(-10px,-26px)}100%{transform:translate(12px,8px)}}
+
+/* ---------- characters ---------- */
+.blink{transform-box:fill-box;transform-origin:50% 50%;animation:blink 5s infinite}
+@keyframes blink{0%,93%,100%{transform:scaleY(1)}95%{transform:scaleY(.08)}}
+.page{transform-box:fill-box;transform-origin:0% 50%;animation:page 5s ease-in-out infinite}
+@keyframes page{0%,70%{transform:scaleX(1)}85%{transform:scaleX(-1)}100%{transform:scaleX(-1)}}
+.steam{animation:steam 2.8s ease-out infinite}
+@keyframes steam{0%{transform:translateY(0);opacity:0}30%{opacity:.7}100%{transform:translateY(-16px);opacity:0}}
+.drop{animation:drop .9s linear infinite}
+@keyframes drop{0%{transform:translate(0,0);opacity:0}15%{opacity:1}100%{transform:translate(8px,30px);opacity:0}}
+.zz{animation:zz 3s ease-out infinite}
+@keyframes zz{0%{transform:translate(0,0) scale(.5);opacity:0}30%{opacity:.8}100%{transform:translate(14px,-30px) scale(1.1);opacity:0}}
+.wing{transform-box:fill-box;transform-origin:100% 50%;animation:flap .22s ease-in-out infinite alternate}
+.wing.r{transform-origin:0% 50%}
+@keyframes flap{from{transform:scaleX(1)}to{transform:scaleX(.25)}}
+.spark{animation:spark 1.6s ease-out forwards}
+@keyframes spark{0%{opacity:0;transform:translate(0,0) scale(.4)}20%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1)}}
+.rise{animation:rise 3.5s ease-out forwards}
+@keyframes rise{0%{opacity:0;transform:translate(0,0)}20%{opacity:.9}100%{opacity:0;transform:translate(var(--dx,0px),-120px)}}
+
+.wave{animation:wave 5s ease-in-out infinite}.wave.w2{animation-delay:-2.5s}
+@keyframes wave{0%,100%{opacity:.18}50%{opacity:.45}}
+.ripple{animation:ripple 4s ease-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes ripple{0%{transform:scale(.4);opacity:.5}100%{transform:scale(1.4);opacity:0}}
+.willow{animation:willow 5s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:50% 0%}
+@keyframes willow{from{transform:rotate(-3deg)}to{transform:rotate(3deg)}}
+.bob{animation:bobf 2.4s ease-in-out infinite}
+@keyframes bobf{0%,100%{transform:translateY(0)}50%{transform:translateY(2px)}}
+.devopen .stage{left:364px}
+.devopen .stage .pb-svg{width:min(calc(100vw - 380px),96vh);height:min(calc(100vw - 380px),96vh)}
+.campreview{position:fixed;right:12px;bottom:12px;z-index:11;width:200px;height:150px;border-radius:12px;border:1px solid #3a3530;background:#111}
+@keyframes petal{from{transform:translate(var(--x0),var(--y0)) rotate(0deg)}to{transform:translate(calc(var(--x0) + 620px),calc(var(--y0) + 420px)) rotate(600deg)}}
+.petal{animation:petal 10s linear infinite}
+@keyframes rainf{from{transform:translate(var(--x0),var(--y0));opacity:0}20%{opacity:1}to{transform:translate(calc(var(--x0) - 30px),calc(var(--y0) + 200px));opacity:0}}
+.rain{animation:rainf .8s linear infinite}
+@keyframes snowf{0%{transform:translate(var(--x0),-520px)}50%{transform:translate(calc(var(--x0) + var(--sw)),0px)}100%{transform:translate(var(--x0),520px)}}
+.flake{animation:snowf 11s linear infinite}
+@keyframes shoot{0%{transform:translate(var(--x0),var(--y0));opacity:0}15%{opacity:1}100%{transform:translate(calc(var(--x0) + 380px),calc(var(--y0) + 160px));opacity:0}}
+.shoot{animation:shoot 1.5s ease-out forwards}
+@keyframes lantern{0%{transform:translate(var(--lx),var(--ly)) scale(.9);opacity:0}10%{opacity:1}85%{opacity:.85}100%{transform:translate(calc(var(--lx) + 40px),calc(var(--ly) + var(--rise))) scale(.5);opacity:0}}
+.lantern{animation:lantern 15s linear infinite}
+@keyframes rbw{0%{opacity:0}20%{opacity:1}75%{opacity:1}100%{opacity:0}}
+.rainbow{animation:rbw 18s ease forwards}
+/* ---------- dev ---------- */
+.devpanel{position:fixed;left:12px;bottom:12px;z-index:10;max-width:340px;max-height:calc(100vh - 24px);overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;background:rgba(28,26,24,.92);
+  border:1px solid #3a3530;border-radius:14px;padding:12px 14px;font-size:12px;color:#e9e2d6;backdrop-filter:blur(8px)}
+.devpanel.hidden{display:none}
+.devpanel h4{margin:0 0 6px;font:600 11px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:#bfb3a1}
+.row{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:4px 0 9px}
+.row .lab{width:100%;color:#a79b8a;font-size:11px}
+button.b{font:500 12px var(--sans);border:1px solid #4a443d;background:#2b2724;color:#efe7da;border-radius:999px;
+  padding:5px 11px;cursor:pointer}
+button.b:hover{background:#3a342f}
+button.b.on{background:#e9d9b8;color:#2b2420;border-color:#e9d9b8}
+button.b.hot{background:#d98b6a;border-color:#d98b6a;color:#fff}
+.badge{display:inline-block;font:600 10px var(--sans);letter-spacing:.06em;padding:3px 8px;border-radius:999px;text-transform:uppercase}
+.badge.sim{background:#4b3d22;color:#f3d79b}
+.badge.live{background:#23452c;color:#a8e2b4}
+.pstate{font:500 11px ui-monospace,Menlo,monospace;color:#cbbfa9}
+
+/* ---------- demo page ---------- */
+body.demo{background:#14120f;overflow:auto}
+.demo-wrap{max-width:1280px;margin:0 auto;padding:28px 24px 60px}
+.demo-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.demo-head h1{font:400 34px var(--serif);margin:0;color:#f4ead9;letter-spacing:.01em}
+.demo-head i{font:italic 17px var(--serif);color:#b8a991}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+@media (max-width:820px){.pair{grid-template-columns:1fr}}
+.clockcol{display:flex;flex-direction:column;align-items:center}
+.clockbox{width:100%;aspect-ratio:1;background:#000;border-radius:28px;display:grid;place-items:center;padding:4%;
+  box-shadow:inset 0 0 0 1px #2a2622}
+.clockbox .pb-svg{width:100%;height:100%}
+.cap{margin:12px 0 4px;text-align:center}
+.cap b{font:400 20px var(--serif);color:#f2e7d4}
+.cap small{display:block;color:#9e927f;font-size:12px;margin-top:2px}
+.ctlcard{width:100%;background:#1d1a17;border:1px solid #2e2924;border-radius:16px;padding:12px 14px;margin-top:10px;font-size:12px;color:#e9e2d6}
+.ctlcard h4{margin:0 0 4px;font:600 11px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:#a99c88}
+.global{margin-top:22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.note{margin-top:22px;color:#9e927f;font-size:12.5px;line-height:1.55;max-width:900px}
+.note a{color:#e3c995}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(() => {
+'use strict';
+/* =========================================================================
+   Peekabloom — a pair of connected ambient clocks
+   Routes:  #parents  (parents' clock in China — shows Yichen)
+            #me       (Yichen's clock in Philadelphia — shows parents)
+            #demo     (developer view: both clocks side by side)
+            (#/parents style also accepted)
+   Also works as real paths /parents and /me on a static host.
+   ========================================================================= */
+
+const Q = new URLSearchParams(location.search);
+const NS = 'http://www.w3.org/2000/svg';
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const easeOutBack = t => { const c1 = 1.5, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
+const rand = (a, b) => a + Math.random() * (b - a);
+const rid = () => Math.random().toString(36).slice(2, 9);
+const other = id => id === 'me' ? 'parents' : 'me';
+const DEG = Math.PI / 180;
+function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function h(tag, attrs = {}, parent) {
+  const e = document.createElement(tag);
+  for (const k in attrs) { if (k === 'text') e.textContent = attrs[k]; else if (k === 'html') e.innerHTML = attrs[k]; else if (k.startsWith('on')) e.addEventListener(k.slice(2), attrs[k]); else e.setAttribute(k, attrs[k]); }
+  if (parent) parent.appendChild(e); return e;
+}
+function sg(tag, attrs = {}, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e); return e;
+}
+
+/* ---------------------------- time zones ---------------------------- */
+const fmtCache = {}, offCache = {};
+function zonedParts(ts, tz) {
+  const f = fmtCache[tz] || (fmtCache[tz] = new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' }));
+  const p = {}; for (const x of f.formatToParts(ts)) p[x.type] = x.value;
+  return { y: +p.year, mo: +p.month, d: +p.day, h: (+p.hour) % 24, mi: +p.minute, s: +p.second };
+}
+function tzOffset(tz, ts) {
+  const c = offCache[tz];
+  if (c && Math.abs(ts - c.at) < 30000) return c.off;
+  const z = zonedParts(ts, tz);
+  const off = Date.UTC(z.y, z.mo - 1, z.d, z.h, z.mi, z.s) - (ts - ((ts % 1000) + 1000) % 1000);
+  offCache[tz] = { at: ts, off }; return off;
+}
+function local(ts, tz) {
+  const d = new Date(ts + tzOffset(tz, ts));
+  return { y: d.getUTCFullYear(), mo: d.getUTCMonth(), d: d.getUTCDate(), h: d.getUTCHours(), mi: d.getUTCMinutes(), s: d.getUTCSeconds(), ms: d.getUTCMilliseconds() };
+}
+function zonedToUtc(y, mo, d, hh, mi, tz) { const g = Date.UTC(y, mo, d, hh, mi); const o = tzOffset(tz, g); delete offCache[tz]; return g - o; }
+const DEVICE_TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
+// time-of-day: night 0..1, golden (dawn/dusk) 0..1
+function todFor(hf) {
+  const s = (a, b, x) => clamp((x - a) / (b - a), 0, 1);
+  const night = hf < 12 ? 1 - s(5, 7, hf) : s(19, 21, hf);
+  const golden = Math.max(Math.exp(-Math.pow((hf - 6.5) / 1.1, 2)), Math.exp(-Math.pow((hf - 18.8) / 1.2, 2)));
+  return { night, golden };
+}
+
+/* ---------------------------- people & themes ---------------------------- */
+const PEOPLE = {
+  me: { name: 'Yichen', char: 'pip', tz: 'America/New_York', city: 'Philadelphia' },
+  parents: { name: 'Mom & Dad', char: 'tang', tz: 'Asia/Shanghai', city: 'China' }
+};
+// THEMES are keyed by CLOCK id. Clock "parents" belongs to the parents and shows Yichen.
+const THEMES = {
+  parents: { // spring sage island — Pip's Philadelphia
+    sea0: '#BFE0D6', sea1: '#94C4BD', wave: '#F4FBF6', sand: '#EEE4C9', sandShade: '#DDD0AF', grass: '#A2C487', grass2: '#B6D49B', tuft: '#80A66E',
+    ink: '#33433A', accent: '#87A47F', glow: '#FFE7A8', marker: '#FFFDF7', leaf: '#7C9A70', stem: '#6C875F',
+    tree1: '#7FAE72', tree2: '#64955E', pine: '#4F8762', trunk: '#8B6B52', pond: '#4E8098', pondEdge: '#A2C9D0', pathC: '#E7DDC2', plot: '#9A7A60', plotIn: '#7F6250',
+    wall: '#D58A6D', roof: '#6F86A6', door: '#4F6B5A', trim: '#F6EFE2',
+    flowers: ['daisy', 'forget', 'bell', 'sprig'], lang: 'zh', homeArc: '#E7C796', outArc: '#87A47F', place: 'philly'
+  },
+  me: { // warm golden island — Mom & Dad's China
+    sea0: '#F7D9C2', sea1: '#E8B597', wave: '#FFF6EA', sand: '#F8E7CB', sandShade: '#EBD2AE', grass: '#CDC38B', grass2: '#DCD39E', tuft: '#ABA36C',
+    ink: '#5A3B2E', accent: '#C9785D', glow: '#FFE2A0', marker: '#FFFAF1', leaf: '#8DA36C', stem: '#7A8F5C',
+    tree1: '#E6A66B', tree2: '#CB8255', pine: '#9DAE6E', trunk: '#8A6550', pond: '#6C9E9B', pondEdge: '#BCD6CC', pathC: '#F4E5C9', plot: '#A9805F', plotIn: '#8D6A4E',
+    wall: '#FBEBD4', roof: '#8E5B4A', door: '#C9785D', trim: '#F6EFE2',
+    flowers: ['tulip', 'marigold', 'camellia', 'poppy'], lang: 'en', homeArc: '#F2D486', outArc: '#C9785D', place: 'china'
+  }
+};
+
+/* ---------------------------- shared state hubs ---------------------------- */
+function initialState() {
+  const now = Date.now();
+  return {
+    presence: { me: { present: false, session: '', ts: 0 }, parents: { present: false, session: '', ts: 0 } },
+    status: { me: { place: 'out', activity: 'walking', ts: now }, parents: { place: 'home', activity: 'casual', ts: now } },
+    history: { me: {}, parents: {} },
+    gardens: { me: {}, parents: {} },
+    meta: { seeded: false }
+  };
+}
+function setPath(obj, path, value) {
+  let o = obj;
+  for (let i = 0; i < path.length - 1; i++) { if (o[path[i]] == null || typeof o[path[i]] !== 'object') o[path[i]] = {}; o = o[path[i]]; }
+  const k = path[path.length - 1];
+  if (value === null || value === undefined) delete o[k]; else o[k] = value;
+}
+function deepMerge(base, add) {
+  if (add == null || typeof add !== 'object') return add == null ? base : add;
+  const out = Array.isArray(base) ? [] : { ...(base || {}) };
+  for (const k in add) out[k] = (base && typeof base[k] === 'object' && typeof add[k] === 'object') ? deepMerge(base[k], add[k]) : add[k];
+  return out;
+}
+
+/** LocalHub — simulation. State lives in localStorage and is broadcast between
+ *  tabs of the SAME browser via BroadcastChannel. Not cross-device. */
+class LocalHub {
+  constructor() {
+    this.kind = 'local'; this.key = 'peekabloom.v1'; this.subs = new Set(); this.pending = false;
+    let st = null; try { st = JSON.parse(localStorage.getItem(this.key)); } catch (e) {}
+    this.state = deepMerge(initialState(), st || {});
+    this.bc = ('BroadcastChannel' in window) ? new BroadcastChannel('peekabloom') : null;
+    if (this.bc) this.bc.onmessage = e => { const m = e.data; if (m && m.reset) { this.state = deepMerge(initialState(), m.state); } else if (m) setPath(this.state, m.path, m.value); this.emit(); };
+    this.connected = true;
+  }
+  label() { return 'Local simulation · syncs only between tabs of this browser'; }
+  subscribe(fn) { this.subs.add(fn); fn(this.state); return () => this.subs.delete(fn); }
+  emit() { if (this.pending) return; this.pending = true; queueMicrotask(() => { this.pending = false; for (const f of this.subs) f(this.state); }); }
+  persist() { try { localStorage.setItem(this.key, JSON.stringify(this.state)); } catch (e) {} }
+  set(path, value) {
+    setPath(this.state, path, value); this.persist();
+    if (this.bc) this.bc.postMessage({ path, value: value === undefined ? null : value });
+    this.emit();
+  }
+  reset(state) { this.state = deepMerge(initialState(), state || {}); this.persist(); if (this.bc) this.bc.postMessage({ reset: true, state: this.state }); this.emit(); }
+}
+
+/** FirebaseHub — real cross-device sync with zero dependencies, using the
+ *  Firebase Realtime Database REST API + its EventSource streaming endpoint.
+ *  Enable with ?db=https://<project>-default-rtdb.firebaseio.com  (optional &auth=<token>) */
+class FirebaseHub {
+  constructor(url, auth) {
+    this.kind = 'firebase'; this.subs = new Set(); this.pending = false; this.connected = false;
+    this.base = url.replace(/\/+$/, '') + '/peekabloom';
+    this.q = auth ? ('?auth=' + encodeURIComponent(auth)) : '';
+    this.state = initialState();
+    this.host = new URL(url).host;
+    const es = new EventSource(this.base + '.json' + this.q);
+    const apply = (path, data, merge) => {
+      const parts = path.split('/').filter(Boolean);
+      if (!parts.length) { this.state = merge ? deepMerge(this.state, data) : deepMerge(initialState(), data || {}); }
+      else if (merge) { for (const k in data) setPath(this.state, parts.concat(k), data[k]); }
+      else setPath(this.state, parts, data);
+      this.emit();
+    };
+    es.addEventListener('put', e => { const m = JSON.parse(e.data); this.connected = true; apply(m.path, m.data, false); });
+    es.addEventListener('patch', e => { const m = JSON.parse(e.data); apply(m.path, m.data, true); });
+    es.onerror = () => { this.connected = false; this.emit(); };
+    es.onopen = () => { this.connected = true; this.emit(); };
+  }
+  label() { return 'Live sync · Firebase ' + this.host + (this.connected ? ' · connected' : ' · connecting…'); }
+  subscribe(fn) { this.subs.add(fn); fn(this.state); return () => this.subs.delete(fn); }
+  emit() { if (this.pending) return; this.pending = true; queueMicrotask(() => { this.pending = false; for (const f of this.subs) f(this.state); }); }
+  set(path, value) {
+    setPath(this.state, path, value); this.emit();
+    fetch(this.base + '/' + path.join('/') + '.json' + this.q, { method: value == null ? 'DELETE' : 'PUT', body: value == null ? undefined : JSON.stringify(value) }).catch(() => {});
+  }
+  reset(state) { this.state = deepMerge(initialState(), state || {}); this.emit(); fetch(this.base + '.json' + this.q, { method: 'PUT', body: JSON.stringify(this.state) }).catch(() => {}); }
+}
+
+const HUB = Q.get('db') ? new FirebaseHub(Q.get('db'), Q.get('auth')) : new LocalHub();
+
+/* ---------------------------- demo history ---------------------------- */
+// A plausible "yesterday + today" in each person's own time zone (simulated data).
+const DAY_PLANS = {
+  me: [[0, 'home', 'resting'], [8.5, 'home', 'casual'], [9.25, 'out', 'active'], [10, 'out', 'casual'], [12.5, 'out', 'walking'], [13.25, 'out', 'resting'], [14, 'out', 'casual'], [17.5, 'out', 'active'], [18.25, 'home', 'casual'], [20, 'home', 'walking'], [21.5, 'home', 'resting']],
+  parents: [[0, 'home', 'resting'], [6, 'home', 'active'], [7, 'out', 'walking'], [8, 'out', 'casual'], [9.5, 'home', 'casual'], [12.5, 'home', 'resting'], [15, 'out', 'walking'], [16.5, 'out', 'resting'], [17.5, 'home', 'casual'], [19.5, 'home', 'walking'], [21, 'home', 'resting']]
+};
+function demoHistory(person) {
+  const tz = PEOPLE[person].tz, now = Date.now(), out = {};
+  for (let back = 2; back >= 0; back--) {
+    const l = local(now - back * 864e5, tz);
+    for (const [hr, place, activity] of DAY_PLANS[person]) {
+      const ts = zonedToUtc(l.y, l.mo, l.d, Math.floor(hr), Math.round((hr % 1) * 60), tz);
+      if (ts <= now && ts > now - 50 * 3600e3) out[ts] = { ts, place, activity, demo: true };
+    }
+  }
+  return out;
+}
+function statusAt(hist, ts) {
+  let best = null;
+  for (const k in hist) { const e = hist[k]; if (e.ts <= ts && (!best || e.ts > best.ts)) best = e; }
+  return best;
+}
+function seedIfNeeded() {
+  const s = HUB.state;
+  if (HUB.kind !== 'local' || s.meta.seeded) return;
+  const st = {};
+  for (const p of ['me', 'parents']) {
+    const hist = demoHistory(p); st[p] = hist;
+    const cur = statusAt(hist, Date.now());
+    if (cur) HUB.set(['status', p], { place: cur.place, activity: cur.activity, ts: Date.now() });
+    HUB.set(['history', p], hist);
+    // a small starter garden so the first look isn't empty
+    const g = {};
+    const types = THEMES[p].flowers;
+    [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 1].forEach((stage, i) => {
+      const id = 'seed' + i; g[id] = { id, type: types[i % 4], stage, slot: i, ts: Date.now() - (14 - i) * 864e5 };
+    });
+    HUB.set(['gardens', p], g);
+  }
+  HUB.set(['meta', 'seeded'], true);
+}
+
+/* ---------------------------- sound (WebAudio, original motifs) ---------------------------- */
+const Sound = {
+  ctx: null, on: Q.get('sound') === '1',
+  ensure() { if (!this.ctx) { try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} } if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume(); return this.ctx; },
+  note(f, t0, dur = 1.6, vol = .08, type = 'sine') {
+    const c = this.ctx; const o = c.createOscillator(), g = c.createGain(), o2 = c.createOscillator(), g2 = c.createGain();
+    o.type = type; o.frequency.value = f; o2.type = 'sine'; o2.frequency.value = f * 2.01;
+    g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(vol, t0 + .012); g.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
+    g2.gain.setValueAtTime(0, t0); g2.gain.linearRampToValueAtTime(vol * .25, t0 + .01); g2.gain.exponentialRampToValueAtTime(.0001, t0 + dur * .5);
+    o.connect(g); o2.connect(g2); g.connect(this.out()); g2.connect(this.out());
+    o.start(t0); o2.start(t0); o.stop(t0 + dur + .1); o2.stop(t0 + dur + .1);
+  },
+  out() {
+    if (this._out) return this._out;
+    const c = this.ctx, master = c.createGain(), d = c.createDelay(), fb = c.createGain(), lp = c.createBiquadFilter();
+    master.gain.value = .9; d.delayTime.value = .27; fb.gain.value = .32; lp.type = 'lowpass'; lp.frequency.value = 2400;
+    master.connect(c.destination); master.connect(d); d.connect(lp); lp.connect(fb); fb.connect(d); lp.connect(c.destination);
+    return (this._out = master);
+  },
+  play(kind) {
+    if (!this.on || !this.ensure()) return;
+    const t = this.ctx.currentTime + .05, N = n => 440 * Math.pow(2, (n - 69) / 12);
+    if (kind === 'presence') { this.note(N(81), t, 1.4, .04); this.note(N(88), t + .12, 1.6, .03); }
+    if (kind === 'bud') { this.note(N(84), t, 1.2, .035); this.note(N(91), t + .18, 1.4, .025); }
+    if (kind === 'together') {
+      // an original little music-box phrase (pentatonic)
+      const seq = [[76, 0], [79, .32], [81, .64], [84, .96], [81, 1.44], [79, 1.76], [76, 2.08], [74, 2.56], [76, 2.88], [79, 3.36]];
+      seq.forEach(([n, dt]) => this.note(N(n), t + dt, 1.8, .06, 'triangle'));
+      [[52, 0], [57, 1.44], [55, 2.88]].forEach(([n, dt]) => this.note(N(n), t + dt, 2.6, .03));
+    }
+  }
+};
+
+/* ---------------------------- the island (clock face) ---------------------------- */
+// The whole dial is a little island seen from above, like a tiny living diorama.
+const ISL = th => 372 + 14 * Math.sin(3 * th + 1) + 10 * Math.sin(5 * th + 2) + 6 * Math.sin(8 * th + .5);
+function islandD(off = 0, alt = 0) {
+  let d = '';
+  for (let i = 0; i <= 160; i++) {
+    const th = i / 160 * 2 * Math.PI;
+    const r = alt ? (250 + 26 * Math.sin(2 * th + alt) + 16 * Math.sin(5 * th + alt * 2)) : ISL(th) + off;
+    d += (i ? 'L' : 'M') + (r * Math.sin(th)).toFixed(1) + ' ' + (-r * Math.cos(th)).toFixed(1);
+  }
+  return d + 'Z';
+}
+const inIsland = (x, y, m) => Math.hypot(x, y) < ISL(Math.atan2(x, -y)) - m;
+const LAY = {
+  house: [-205, -175], lamp: [-112, -150], dock: [0, 380],
+  plots: [[-330, 60], [-280, 58], [-230, 62], [-320, 112], [-270, 114], [-220, 110]],
+  pond: { x: 175, y: 120, rx: 112, ry: 56 }, bench: [232, 272],
+  path: [[-205, -172], [-190, -110], [-150, -55], [-110, 0], [-95, 40], [-75, 110], [-45, 180], [-20, 250], [-8, 310], [0, 372]],
+  branch: [[-95, 40], [-30, 65], [20, 90], [52, 106]],
+  sit: [-292, -78], water: [-168, 88], hop: [-250, -6], wander: [-300, -80, -110, 200], fish: [22, 112],
+  homeFocus: [-205, -215], outFocus: [175, 115],
+  trees: {
+    parents: [['round', 140, -205, 1.15], ['pine', 258, -148, 1], ['pine', 308, -62, .85], ['pine', 222, -52, .8], ['bush', -262, 206, .8], ['bush', 110, 300, .7]],
+    me: [['round', 140, -205, 1.15], ['willow', 282, -100, 1.05], ['round', 232, -36, .72], ['bush', -262, 206, .8], ['bush', 110, 300, .7]]
+  }
+};
+const OUT_LOOP = Array.from({ length: 12 }, (_, i) => { const a = i / 12 * 2 * Math.PI; return [175 + 150 * Math.cos(a), 120 + 94 * Math.sin(a)]; });
+const angTo = ([x, y]) => Math.atan2(x, -y) / DEG;
+const HOME_ANGLE = angTo(LAY.homeFocus), OUT_ANGLE = angTo(LAY.outFocus);
+const MEET = [40, 232];   // where the two characters always meet
+const MOON_SLOTS = [[-140, 262], [130, 318], [-84, 330], [152, -112], [-22, -292], [-250, 182], [60, -336], [300, 190]];
+
+function segDist(px, py, a, b) {
+  const dx = b[0] - a[0], dy = b[1] - a[1], t = clamp(((px - a[0]) * dx + (py - a[1]) * dy) / (dx * dx + dy * dy), 0, 1);
+  return Math.hypot(px - a[0] - t * dx, py - a[1] - t * dy);
+}
+function blocked(x, y, theme) {
+  if (!inIsland(x, y, 34)) return true;
+  if (Math.hypot(x, y) < 52) return true;                                 // hand pivot
+  const [hx, hy] = LAY.house; if (x > hx - 92 && x < hx + 92 && y > hy - 170 && y < hy + 22) return true;
+  if (Math.hypot(x - LAY.lamp[0], y - LAY.lamp[1] + 10) < 24) return true;
+  const P = LAY.pond; if (((x - P.x) / (P.rx + 22)) ** 2 + ((y - P.y) / (P.ry + 20)) ** 2 < 1) return true;
+  if (Math.hypot(x - LAY.fish[0], y - LAY.fish[1]) < 40) return true;
+  if (x > LAY.bench[0] - 50 && x < LAY.bench[0] + 50 && y > LAY.bench[1] - 56 && y < LAY.bench[1] + 14) return true;
+  for (const p of LAY.plots) if (Math.hypot(x - p[0], y - p[1]) < 30) return true;
+  for (const [, tx, ty, s] of LAY.trees[theme]) if (Math.hypot(x - tx, y - (ty - 70 * s)) < 70 * s || Math.hypot(x - tx, y - ty) < 30 * s) return true;
+  for (const line of [LAY.path, LAY.branch]) for (let i = 0; i < line.length - 1; i++) if (segDist(x, y, line[i], line[i + 1]) < 26) return true;
+  if (Math.abs(x) < 34 && y > 360) return true;
+  for (const m of MOON_SLOTS.concat([MEET])) if (Math.hypot(x - m[0], y - m[1]) < 34) return true;
+  return false;
+}
+// Flower spots over the WHOLE island, ordered by farthest-point sampling:
+// a few flowers are spread far apart; more flowers fill in the gaps.
+function makeSlots(theme, seed) {
+  const r = mulberry32(seed), cand = [];
+  for (let y = -380; y <= 380; y += 26) for (let x = -380; x <= 380; x += 26) {
+    const px = x + (r() - .5) * 18, py = y + (r() - .5) * 18;
+    if (!blocked(px, py, theme)) cand.push({ x: px, y: py });
+  }
+  const out = [], md = cand.map(c => Math.hypot(c.x + 60, c.y - 150) * .001 + r() * .001);
+  let cur = cand.reduce((b, c, i) => (Math.hypot(c.x - 60, c.y - 170) < Math.hypot(cand[b].x - 60, cand[b].y - 170) ? i : b), 0);
+  for (let n = 0; n < cand.length; n++) {
+    const c = cand[cur]; out.push({ x: c.x, y: c.y, s: .52 + (c.y + 400) / 1900 });
+    md[cur] = -1;
+    let best = -1, bi = -1;
+    for (let i = 0; i < cand.length; i++) {
+      if (md[i] < 0) continue;
+      const d = Math.hypot(cand[i].x - c.x, cand[i].y - c.y);
+      if (n === 0 || d < md[i]) md[i] = d;
+      const score = md[i] * (.85 + r() * .3);
+      if (score > best) { best = score; bi = i; }
+    }
+    if (bi < 0) break; cur = bi;
+  }
+  return out;
+}
+
+/* ---------------------------- variations & push ---------------------------- */
+function strHash(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+// each shared moonbloom gets its own colour: gold, rose, sky, lilac, apricot
+const MOON_HUES = [['#FFD978', '#FFF6DE', '#D9E4FF'], ['#F7B0C4', '#FFF1F5', '#E6D9FF'], ['#A9CFFF', '#F2F8FF', '#FFF0C8'], ['#D4BCF5', '#FBF6FF', '#C9F0E2'], ['#FFC08F', '#FFF5EA', '#FFE6A3']];
+const TG_VARIANTS = ['butterfly', 'picnic', 'dance', 'lanterns', 'kite', 'stars'];
+function lanternSVG(x, y, rise, dur, delay = 0) {
+  return `<g class="lantern" style="--lx:${x.toFixed(0)}px;--ly:${y.toFixed(0)}px;--rise:-${rise}px;animation-duration:${dur.toFixed(1)}s;animation-delay:${delay.toFixed(1)}s"><rect x="-9" y="-13" width="18" height="22" rx="6" fill="#FFB866" style="filter:drop-shadow(0 0 9px #FFC77A)"/><rect x="-5" y="-8" width="10" height="13" rx="3" fill="#FFE9AE"/></g>`;
+}
+// Phone nudge after a shared moment — sent by each clock to its OWN owner's phone.
+// ?push=ntfy:<topic>  (ntfy app)   or   ?push=bark:<device-key>  (Bark app, works well in mainland China)
+// ?call=<url opened when the notification is tapped>, e.g. facetime://you@icloud.com  or  weixin://
+const PUSH_TEXT = {
+  parents: { title: 'Peekabloom · 小小一瞥', body: '刚刚奕辰也在看她的钟 ✿ 想跟她通个电话吗？' },
+  me: { title: 'Peekabloom · 小小一瞥', body: '爸妈刚刚也在看他们的钟 ✿ 想跟他们通个电话吗？' }
+};
+const Push = {
+  cfg: Q.get('push'), call: Q.get('call'), gapH: parseFloat(Q.get('pushgap') || '3'), last: '', sentKeys: new Set(),
+  send(clockId, test) {
+    if (!this.cfg) { this.last = 'no ?push= set — nothing sent'; return false; }
+    const k = 'pb.push.' + clockId; let prev = 0; try { prev = +localStorage.getItem(k) || 0; } catch (e) {}
+    if (!test && Date.now() - prev < this.gapH * 3600e3) { this.last = 'skipped — already nudged in the last ' + this.gapH + ' h'; return false; }
+    try { localStorage.setItem(k, String(Date.now())); } catch (e) {}
+    const { title, body } = PUSH_TEXT[clockId], enc = encodeURIComponent;
+    const i = this.cfg.indexOf(':'), kind = this.cfg.slice(0, i), target = this.cfg.slice(i + 1);
+    let url, opts = { mode: 'no-cors' };
+    if (kind === 'ntfy') { url = (target.startsWith('http') ? target : 'https://ntfy.sh/' + target) + `?title=${enc(title)}&tags=cherry_blossom` + (this.call ? `&click=${enc(this.call)}` : ''); opts = { method: 'POST', body, mode: 'no-cors' }; }
+    else if (kind === 'bark') { url = (target.startsWith('http') ? target : 'https://api.day.app/' + target) + `/${enc(title)}/${enc(body)}?group=peekabloom` + (this.call ? `&url=${enc(this.call)}` : ''); }
+    else { this.last = 'unknown push type: ' + kind; return false; }
+    this.last = 'sending…';
+    fetch(url, opts).then(() => { this.last = 'sent at ' + new Date().toLocaleTimeString(); }).catch(e => { this.last = 'failed: ' + e.message; });
+    return true;
+  },
+  together(clock, key) { const k = clock.id + key; if (this.sentKeys.has(k)) return; this.sentKeys.add(k); this.send(clock.id); }
+};
+
+/* ---------------------------- flower art ---------------------------- */
+const FLOWER = {
+  daisy: { kind: 'radial', n: 11, petal: '#FFFDF6', line: '#D3D8C4', center: '#F0C64E', len: 17, w: 6 },
+  forget: { kind: 'radial', n: 5, petal: '#9EB9DA', line: '#7F9CC0', center: '#F6E08A', len: 9, w: 8, cluster: 3 },
+  bell: { kind: 'bell', petal: '#B9A5D8', line: '#9A86BD' },
+  sprig: { kind: 'sprig', petal: '#F7F0DA', line: '#D9CFB0' },
+  tulip: { kind: 'tulip', petal: '#F4A88B', line: '#D9846A' },
+  marigold: { kind: 'radial', n: 14, petal: '#F6C552', line: '#E0A43A', center: '#E08A3C', len: 14, w: 7, layers: 2 },
+  camellia: { kind: 'radial', n: 7, petal: '#EF9393', line: '#D97474', center: '#F7D774', len: 15, w: 12, layers: 2 },
+  poppy: { kind: 'radial', n: 5, petal: '#DA7350', line: '#BF5B3B', center: '#4A3328', len: 17, w: 15 }
+};
+function radialBloom(F, o, scale = 1) {
+  let s = '';
+  const layers = F.layers || 1;
+  for (let L = 0; L < layers; L++) {
+    const f = L ? .62 : 1, n = F.n, len = F.len * f * scale, w = F.w * f * scale;
+    for (let i = 0; i < n; i++) {
+      const a = i * 360 / n + (L ? 180 / n : 0);
+      s += `<ellipse cx="0" cy="${(-len / 2 * o).toFixed(1)}" rx="${(w / 2 * (.5 + .5 * o)).toFixed(1)}" ry="${(len / 2 * (.35 + .65 * o)).toFixed(1)}" transform="rotate(${a})" fill="${F.petal}" stroke="${F.line}" stroke-width="1"/>`;
+    }
+  }
+  s += `<circle r="${(3.6 * scale + 1.4 * o).toFixed(1)}" fill="${F.center}"/>`;
+  return s;
+}
+function bud(F, sz) {
+  return `<path d="M0 ${-sz * 1.9} Q${sz} ${-sz * .9} ${sz * .7} 0 Q0 ${sz * .5} ${-sz * .7} 0 Q${-sz} ${-sz * .9} 0 ${-sz * 1.9}Z" fill="${F.petal}" stroke="${F.line}" stroke-width="1.2"/>`;
+}
+const STEM_H = [14, 24, 38, 50];
+function flowerSVG(f, T, uid) {
+  const st = clamp(f.stage | 0, 0, 3);
+  if (f.type === 'moon') return moonSVG(uid, 1, f.hue | 0);
+  const F = FLOWER[f.type] || FLOWER.daisy;
+  const H = STEM_H[st], o = [0, 0, .55, 1][st];
+  const bend = ((f.id || '').charCodeAt(2) % 7 - 3) * 1.6;
+  let s = `<ellipse cx="0" cy="1" rx="${8 + st * 3}" ry="${3 + st}" fill="#000" opacity=".1"/><path d="M0 0 Q${bend} ${-H / 2} 0 ${-H}" stroke="${T.stem}" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
+  if (st >= 1) s += `<path d="M0 ${-H * .32} q10 -7 17 -2 q-8 7 -17 2Z" fill="${T.leaf}"/>`;
+  if (st >= 2) s += `<path d="M0 ${-H * .5} q-10 -7 -15 -1 q8 6 15 1Z" fill="${T.leaf}"/>`;
+  if (st <= 1) {
+    const sz = st ? 5.5 : 3.8;
+    s += `<g transform="translate(0,${-H + 2})"><g class="bl">${bud(F, sz)}<path d="M-4 0 Q0 -5 4 0" fill="${T.leaf}"/></g></g>`;
+    return s;
+  }
+  let head = '';
+  if (F.kind === 'radial') {
+    head = radialBloom(F, o);
+    if (F.cluster && st === 3) head = `<g transform="translate(-9,6) scale(.75)">${radialBloom(F, o)}</g><g transform="translate(9,4) scale(.8)">${radialBloom(F, o)}</g>` + head;
+  } else if (F.kind === 'tulip') {
+    const k = .7 + .3 * o;
+    head = `<g transform="scale(${k})"><path d="M-9 4 Q-12 -10 -6 -18 L-2 -9 L0 -19 L2 -9 L6 -18 Q12 -10 9 4 Q0 9 -9 4Z" fill="${F.petal}" stroke="${F.line}" stroke-width="1.2"/><path d="M-3 -6 Q0 -14 3 -6" fill="none" stroke="${F.line}" stroke-width="1"/></g>`;
+  } else if (F.kind === 'bell') {
+    const b = (x, y, k) => `<g transform="translate(${x},${y}) scale(${k})"><path d="M-6 0 Q-7 8 -10 12 Q0 15 10 12 Q7 8 6 0 Q0 -4 -6 0Z" fill="${F.petal}" stroke="${F.line}" stroke-width="1.1"/></g>`;
+    head = `<path d="M0 0 Q12 -8 22 4" stroke="${T.stem}" stroke-width="2" fill="none"/>` + b(0, 0, .8 + .3 * o) + b(14, 0, .6 + .3 * o) + (st === 3 ? b(22, 6, .7) : '');
+  } else if (F.kind === 'sprig') {
+    let d = ''; const pts = [[0, 0], [-8, 4], [8, 3], [-4, -7], [6, -8], [-12, -4], [12, -3], [0, -12]];
+    pts.slice(0, st === 3 ? 8 : 5).forEach(([x, y]) => { d += `<path d="M0 8 L${x} ${y}" stroke="${T.stem}" stroke-width="1"/><circle cx="${x}" cy="${y}" r="${2.4 + o}" fill="${F.petal}" stroke="${F.line}" stroke-width=".8"/>`; });
+    head = d;
+  }
+  s += `<g transform="translate(0,${-H})"><g class="bl">${head}</g></g>`;
+  return s;
+}
+function moonSVG(uid, o = 1, hue = 0) {
+  // the luminous flower that only blooms when both people look at the same time
+  let p = '';
+  for (let i = 0; i < 8; i++) p += `<path d="M0 0 C10 -10 10 -30 0 -44 C-10 -30 -10 -10 0 0Z" transform="rotate(${i * 45}) scale(${(i % 2 ? .78 : 1) * o})" fill="url(#${uid}moonp${hue})" stroke="#E8CF8A" stroke-width="1"/>`;
+  return `<ellipse cx="0" cy="2" rx="26" ry="7" fill="#000" opacity=".1"/><path d="M0 0 Q-4 -36 0 -72" stroke="#7E9A6E" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M0 -28 q14 -10 24 -2 q-12 9 -24 2Z" fill="#9BB487"/><path d="M0 -42 q-14 -10 -22 -1 q11 8 22 1Z" fill="#9BB487"/>
+    <g transform="translate(0,-72)"><circle r="86" fill="url(#${uid}halo)" class="mglow"/><g class="bl">${p}<circle r="10" fill="#FFF6D2"/><circle r="5" fill="#FFD66B"/></g>
+    <circle cx="-30" cy="-26" r="2" fill="#FFF3C4" class="twk"/><circle cx="28" cy="-34" r="1.6" fill="#FFF3C4" class="twk" style="animation-delay:.8s"/><circle cx="34" cy="10" r="1.8" fill="#FFF3C4" class="twk" style="animation-delay:1.6s"/></g>`;
+}
+
+/* ---------------------------- island scenery (flat, soft, no outlines) ---------------------------- */
+function treeSVG(kind, x, y, s, T) {
+  const sh = `<ellipse cx="0" cy="2" rx="48" ry="13" fill="#000" opacity=".13"/>`;
+  let b = '';
+  if (kind === 'round') b = `${sh}<rect x="-7" y="-46" width="14" height="48" rx="5" fill="${T.trunk}"/><circle cx="-26" cy="-70" r="32" fill="${T.tree2}"/><circle cx="26" cy="-72" r="32" fill="${T.tree2}"/><circle cx="0" cy="-98" r="40" fill="${T.tree1}"/><circle cx="-14" cy="-110" r="15" fill="#fff" opacity=".13"/><circle cx="22" cy="-64" r="10" fill="#fff" opacity=".08"/>`;
+  if (kind === 'pine') b = `${sh}<rect x="-6" y="-26" width="12" height="28" rx="4" fill="${T.trunk}"/><path d="M0 -150 L30 -100 L20 -100 L42 -62 L28 -62 L50 -24 L-50 -24 L-28 -62 L-42 -62 L-20 -100 L-30 -100Z" fill="${T.pine}" stroke="${T.pine}" stroke-width="10" stroke-linejoin="round"/><path d="M0 -150 L-30 -100 L-20 -100 L-42 -62 L-28 -62 L-50 -24 L0 -24Z" fill="#fff" opacity=".07"/>`;
+  if (kind === 'bush') b = `<ellipse cx="0" cy="2" rx="40" ry="10" fill="#000" opacity=".12"/><circle cx="-18" cy="-16" r="20" fill="${T.tree2}"/><circle cx="16" cy="-14" r="20" fill="${T.tree2}"/><circle cx="0" cy="-28" r="22" fill="${T.tree1}"/><circle cx="-6" cy="-34" r="8" fill="#fff" opacity=".12"/>`;
+  if (kind === 'willow') {
+    b = `${sh}<path d="M-6 0 Q-2 -50 -4 -96 L8 -96 Q8 -50 8 0Z" fill="${T.trunk}"/><ellipse cx="0" cy="-104" rx="58" ry="36" fill="${T.pine}"/>`;
+    for (let i = -5; i <= 5; i++) b += `<path d="M${i * 10} -104 Q${i * 12} -60 ${i * 13 + (i % 2) * 4} ${-34 + Math.abs(i) * 4}" stroke="${T.pine}" stroke-width="7" fill="none" stroke-linecap="round" class="willow" style="animation-delay:${i * .2}s"/>`;
+    b += `<ellipse cx="-16" cy="-116" rx="20" ry="10" fill="#fff" opacity=".1"/>`;
+  }
+  return `<g transform="translate(${x},${y}) scale(${s})">${b}</g>`;
+}
+function houseSVG(T) {
+  const [x, y] = LAY.house;
+  if (T.place === 'philly') {
+    // Pip's little brick cottage in Philadelphia
+    return `<g transform="translate(${x},${y})"><ellipse cy="4" rx="100" ry="18" fill="#000" opacity=".13"/>
+      <rect x="-72" y="-98" width="144" height="98" rx="8" fill="${T.wall}"/>
+      ${[[-56, -60], [-30, -40], [40, -72], [52, -30], [-46, -20], [20, -86]].map(([a, b]) => `<rect x="${a}" y="${b}" width="16" height="6" rx="2" fill="#fff" opacity=".12"/>`).join('')}
+      <rect x="-72" y="-22" width="144" height="22" rx="4" fill="#000" opacity=".07"/>
+      <rect x="40" y="-176" width="18" height="40" rx="3" fill="#B5634A"/>
+      <path d="M-88 -90 Q-64 -152 0 -162 Q64 -152 88 -90 Q0 -78 -88 -90Z" fill="${T.roof}"/>
+      <path d="M-56 -118 Q0 -152 56 -118" stroke="#fff" stroke-opacity=".14" stroke-width="7" fill="none" stroke-linecap="round"/>
+      <rect class="win" x="-54" y="-76" width="28" height="28" rx="7" fill="#F7E8C6"/><rect class="win" x="26" y="-76" width="28" height="28" rx="7" fill="#F7E8C6"/>
+      <path d="M-40 -76 v28 M-54 -62 h28 M40 -76 v28 M26 -62 h28" stroke="${T.wall}" stroke-width="3"/>
+      <path d="M-16 0 V-44 Q0 -62 16 -44 V0Z" fill="${T.door}"/><circle cx="9" cy="-22" r="2.6" fill="#F2D486"/>
+      <rect x="-28" y="-2" width="56" height="8" rx="3" fill="${T.trim}"/>
+      <g class="smokeG hid" transform="translate(49,-180)"><circle class="smoke" r="9" fill="#fff" opacity=".7"/><circle class="smoke" r="7" fill="#fff" opacity=".7" style="animation-delay:2s"/></g></g>`;
+  }
+  // Mom & Dad's home: soft walls, gently upturned tile eaves, a red lantern
+  return `<g transform="translate(${x},${y})"><ellipse cy="4" rx="104" ry="18" fill="#000" opacity=".13"/>
+    <rect x="-66" y="-88" width="132" height="88" rx="6" fill="${T.wall}"/>
+    <rect x="-66" y="-20" width="132" height="20" rx="4" fill="#000" opacity=".06"/>
+    <rect x="34" y="-160" width="16" height="34" rx="3" fill="#A57B66"/>
+    <path d="M-100 -86 Q-80 -88 -68 -98 L-36 -132 H36 L68 -98 Q80 -88 100 -86 Q60 -78 0 -78 Q-60 -78 -100 -86Z" fill="${T.roof}"/>
+    <path d="M-56 -104 H56 M-44 -118 H44" stroke="#000" stroke-opacity=".12" stroke-width="3"/>
+    <circle class="win" cx="-34" cy="-52" r="16" fill="#F7E8C6"/><path d="M-34 -68 v32 M-50 -52 h32" stroke="${T.wall}" stroke-width="3"/>
+    <rect x="12" y="-58" width="32" height="58" rx="4" fill="${T.door}"/><circle cx="19" cy="-28" r="2.4" fill="#F2D486"/>
+    <path d="M76 -86 V-72" stroke="#6A5040" stroke-width="2"/><ellipse class="lantern" cx="76" cy="-60" rx="10" ry="12" fill="#E46F6F"/><path d="M76 -48 v7" stroke="#F2D486" stroke-width="2.4"/>
+    <g class="smokeG hid" transform="translate(42,-166)"><circle class="smoke" r="8" fill="#fff" opacity=".7"/><circle class="smoke" r="6" fill="#fff" opacity=".7" style="animation-delay:2s"/></g></g>`;
+}
+function islandSVG(id, T) {
+  const r = mulberry32(id === 'me' ? 21 : 13);
+  const P = LAY.pond;
+  let tufts = '';
+  for (let i = 0; i < 90; i++) {
+    const x = (r() - .5) * 720, y = (r() - .5) * 720;
+    if (!inIsland(x, y, 30) || (((x - P.x) / (P.rx + 10)) ** 2 + ((y - P.y) / (P.ry + 10)) ** 2 < 1)) continue;
+    tufts += `<path d="M${(x - 5).toFixed(0)} ${y.toFixed(0)} l-2 -7 M${x.toFixed(0)} ${y.toFixed(0)} v-9 M${(x + 5).toFixed(0)} ${y.toFixed(0)} l2 -7" stroke="${T.tuft}" stroke-width="2" stroke-linecap="round" opacity=".75"/>`;
+  }
+  const pathD = 'M' + LAY.path.map(p => p.join(' ')).join(' L');
+  const branchD = 'M' + LAY.branch.map(p => p.join(' ')).join(' L');
+  const plots = LAY.plots.map(([x, y], i) => `<g transform="translate(${x},${y})"><ellipse rx="22" ry="11" fill="${T.plot}"/><ellipse cy="-2" rx="15" ry="6" fill="${T.plotIn}"/>${i === 1 || i === 4 ? `<path d="M0 -3 V-16" stroke="${T.stem}" stroke-width="2.4"/><path d="M0 -14 q-9 -6 -12 0 q6 4 12 0Z M0 -12 q9 -7 12 -1 q-6 4 -12 1Z" fill="${T.leaf}"/>` : ''}</g>`).join('');
+  const pads = T.place === 'china'
+    ? [[-40, -14], [34, 16], [62, -22]].map(([x, y], i) => `<g transform="translate(${x},${y})"><ellipse rx="15" ry="8" fill="#7FB26E"/><path d="M0 0 L15 -2 L13 3Z" fill="${T.pond}"/>${i !== 1 ? `<g transform="translate(-2,-5)">${[0, 60, 120, 180, 240, 300].map(a => `<ellipse cy="-5" rx="3.4" ry="6" transform="rotate(${a})" fill="#F3A6B5"/>`).join('')}<circle r="2.6" fill="#F6D27A"/></g>` : ''}</g>`).join('')
+    : [[-40, -14], [34, 16], [62, -22]].map(([x, y]) => `<g transform="translate(${x},${y})"><ellipse rx="14" ry="7.5" fill="#7FB26E"/><path d="M0 0 L14 -2 L12 3Z" fill="${T.pond}"/></g>`).join('');
+  const trees = LAY.trees[id].slice().sort((a, b) => a[2] - b[2]).map(([k, x, y, s]) => treeSVG(k, x, y, s, T)).join('');
+  const [bx, by] = LAY.bench, [lx, ly] = LAY.lamp;
+  return `
+    <path class="wave" d="${islandD(46)}" fill="none" stroke="${T.wave}" stroke-width="2.5" opacity=".22"/>
+    <path class="wave w2" d="${islandD(26)}" fill="none" stroke="${T.wave}" stroke-width="3" opacity=".38"/>
+    <path d="${islandD(14)}" fill="${T.sandShade}"/>
+    <path d="${islandD(8)}" fill="${T.sand}"/>
+    <path d="${islandD(-10)}" fill="${T.grass}"/>
+    <path d="${islandD(0, 1.3)}" transform="translate(-10,-14)" fill="${T.grass2}" opacity=".55"/>
+    ${tufts}
+    <path d="${pathD}" stroke="${T.pathC}" stroke-width="26" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="${branchD}" stroke="${T.pathC}" stroke-width="20" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <g transform="translate(${LAY.dock[0]},${LAY.dock[1]})"><rect x="-20" y="-6" width="40" height="52" rx="3" fill="#B98B62"/>${[6, 18, 30].map(yy => `<path d="M-20 ${yy} h40" stroke="#9A7150" stroke-width="2"/>`).join('')}<rect x="-24" y="40" width="7" height="12" rx="2" fill="#8A6550"/><rect x="17" y="40" width="7" height="12" rx="2" fill="#8A6550"/></g>
+    ${plots}
+    <g transform="translate(${P.x},${P.y})"><ellipse rx="${P.rx + 12}" ry="${P.ry + 10}" fill="${T.pondEdge}"/><ellipse rx="${P.rx}" ry="${P.ry}" fill="${T.pond}"/><ellipse cy="-8" rx="${P.rx - 22}" ry="${P.ry - 22}" fill="#fff" opacity=".07"/>
+      <ellipse class="ripple" cx="10" cy="6" rx="34" ry="12" fill="none" stroke="#fff" stroke-width="2"/>${pads}</g>
+    <g transform="translate(${bx},${by})"><ellipse cy="2" rx="44" ry="8" fill="#000" opacity=".12"/><rect x="-38" y="-24" width="6" height="26" rx="2" fill="#8A6550"/><rect x="32" y="-24" width="6" height="26" rx="2" fill="#8A6550"/><rect x="-44" y="-30" width="88" height="10" rx="4" fill="#C79A6E"/><rect x="-44" y="-54" width="88" height="9" rx="4" fill="#B98B62"/><rect x="-44" y="-42" width="88" height="7" rx="3" fill="#B98B62"/></g>
+    <g transform="translate(${lx},${ly})"><ellipse cy="2" rx="14" ry="5" fill="#000" opacity=".14"/><rect x="-3" y="-70" width="6" height="72" rx="3" fill="#4E5A62"/><rect x="-10" y="-84" width="20" height="16" rx="5" fill="#4E5A62"/><rect x="-6" y="-80" width="12" height="9" rx="3" fill="#FFF0BE"/></g>
+    ${houseSVG(T)}
+    ${trees}`;
+}
+
+/* ---------------------------- characters ---------------------------- */
+function bikeSVG(span, ink) {
+  const wheel = x => `<g class="wheel" data-x="${x}"><circle r="15" fill="none" stroke="${ink}" stroke-width="3"/><path d="M-15 0H15M0 -15V15M-10.6 -10.6L10.6 10.6M-10.6 10.6L10.6 -10.6" stroke="${ink}" stroke-width="1.2" opacity=".55"/></g>`;
+  const a = -span, b = span;
+  return `${wheel(a)}${wheel(b)}<path d="M${a} -15 L${a + span * .7} -38 L${b - 6} -38 L${b} -15 M${a + span * .7} -38 L${a + span * .9} -15 L${b - 6} -38 M${b - 6} -38 L${b - 4} -48 l8 -2" stroke="#C9785D" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+}
+function pipSVG() {
+  const ink = '#5E4C40', body = '#FFF9EE', leaf = '#7FA36F', scarf = '#D9785A', blush = '#F4A18E';
+  return `<ellipse class="shadow" cx="0" cy="0" rx="30" ry="7" fill="#1d2a18" opacity=".18"/>
+  <g class="flip">
+   <g class="p-bike hid">${bikeSVG(28, ink)}</g>
+   <g class="rig">
+    <g class="p-backpack hid"><rect x="-40" y="-60" width="20" height="30" rx="8" fill="#C9A26B" stroke="${ink}" stroke-width="2.5"/><path d="M-39 -49 h18" stroke="${ink}" stroke-width="2"/></g>
+    <g class="feet"><ellipse class="footL" cx="-11" cy="-4" rx="8.5" ry="5" fill="${ink}"/><ellipse class="footR" cx="11" cy="-4" rx="8.5" ry="5" fill="${ink}"/></g>
+    <ellipse class="armL" cx="-31" cy="-28" rx="5.5" ry="7.5" fill="${body}" stroke="${ink}" stroke-width="2.5"/>
+    <path d="M0 -80 C27 -80 33 -52 32 -31 C31 -12 18 -4 0 -4 C-18 -4 -31 -12 -32 -31 C-33 -52 -27 -80 0 -80Z" fill="${body}" stroke="${ink}" stroke-width="3"/>
+    <path d="M-20 -14 Q0 -6 20 -14 Q14 -6 0 -5 Q-14 -6 -20 -14Z" fill="#000" opacity=".05"/>
+    <g class="sprout"><path d="M0 -80 Q1 -92 -2 -101" stroke="${ink}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+     <path d="M-2 -99 Q-18 -112 -23 -98 Q-12 -91 -2 -99Z" fill="${leaf}" stroke="${ink}" stroke-width="2"/>
+     <path d="M-1 -96 Q12 -111 21 -100 Q10 -89 -1 -96Z" fill="${leaf}" stroke="${ink}" stroke-width="2"/></g>
+    <g class="eyes"><g class="blink"><ellipse cx="-9" cy="-50" rx="3.7" ry="4.9" fill="${ink}"/><ellipse cx="10" cy="-50" rx="3.7" ry="4.9" fill="${ink}"/></g><circle cx="-8" cy="-52" r="1.3" fill="#fff"/><circle cx="11" cy="-52" r="1.3" fill="#fff"/></g>
+    <g class="eyesC hid"><path d="M-13 -49 q4 3 8 0 M6 -49 q4 3 8 0" stroke="${ink}" stroke-width="2.2" fill="none" stroke-linecap="round"/></g>
+    <ellipse cx="-19" cy="-40" rx="5.5" ry="3.2" fill="${blush}" opacity=".75"/><ellipse cx="20" cy="-40" rx="5.5" ry="3.2" fill="${blush}" opacity=".75"/>
+    <path d="M-3 -42 Q1 -38 4 -42" stroke="${ink}" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M-29 -29 Q0 -20 29 -29 L28 -21 Q0 -12 -28 -21Z" fill="${scarf}" stroke="${ink}" stroke-width="2"/>
+    <path class="tail" d="M-18 -22 Q-27 -9 -33 -4 L-25 -1 Q-18 -10 -11 -20Z" fill="${scarf}" stroke="${ink}" stroke-width="2"/>
+    <ellipse class="armR" cx="31" cy="-28" rx="5.5" ry="7.5" fill="${body}" stroke="${ink}" stroke-width="2.5"/>
+    <g class="p-rod hid"><path d="M30 -30 L86 -88" stroke="#8B6B52" stroke-width="3.4" stroke-linecap="round"/><path d="M86 -88 Q100 -60 104 -14" stroke="#fff" stroke-width="1" fill="none" opacity=".85"/><circle class="bob" cx="104" cy="-12" r="4.5" fill="#E46F6F"/></g>
+    <g class="p-book hid" transform="translate(0,-20)"><path d="M-17 0 Q-8 -5 0 0 Q8 -5 17 0 L17 13 Q8 8 0 13 Q-8 8 -17 13Z" fill="#fff" stroke="${ink}" stroke-width="2"/><path class="page" d="M0 0 Q8 -5 17 0 L17 13 Q8 8 0 13Z" fill="#F3EAD2" stroke="${ink}" stroke-width="1.4"/></g>
+    <g class="p-cup hid" transform="translate(30,-26)"><path d="M-7 -10 h14 l-2 13 h-10Z" fill="#fff" stroke="${ink}" stroke-width="2"/><path d="M7 -7 q6 1 4 6 q-2 3 -5 2" fill="none" stroke="${ink}" stroke-width="1.8"/><path class="steam" d="M-2 -14 q-3 -5 0 -9 q3 -4 0 -8" stroke="#fff" stroke-width="2" fill="none" opacity=".7"/></g>
+    <g class="p-can hid" transform="translate(40,-30) rotate(24)"><rect x="-12" y="-10" width="22" height="18" rx="4" fill="#8FB0C9" stroke="${ink}" stroke-width="2"/><path d="M10 -2 L26 -12" stroke="${ink}" stroke-width="3" stroke-linecap="round"/><path d="M-10 -10 q10 -12 18 0" fill="none" stroke="${ink}" stroke-width="2"/>
+      <g transform="translate(27,-11) rotate(-24)"><circle class="drop" r="2" fill="#8FB8D9"/><circle class="drop" r="2" fill="#8FB8D9" style="animation-delay:.3s" cx="3"/><circle class="drop" r="1.6" fill="#8FB8D9" style="animation-delay:.6s" cx="-2"/></g></g>
+    <g class="p-bag hid" transform="translate(30,-14)"><path d="M-9 -2 h18 l-3 18 h-12Z" fill="#EADFC6" stroke="${ink}" stroke-width="2"/><path d="M-5 -2 q5 -10 10 0" fill="none" stroke="${ink}" stroke-width="2"/><path d="M2 -2 l6 -16" stroke="#E2B66B" stroke-width="5" stroke-linecap="round"/></g>
+    <g class="zzz hid"><text class="zz" x="24" y="-78" font-size="18" fill="${ink}">z</text><text class="zz" x="30" y="-88" font-size="13" fill="${ink}" style="animation-delay:1.5s">z</text></g>
+   </g>
+  </g>`;
+}
+function tangSVG() {
+  const ink = '#6A5040', w = '#FFFDF6', cap = '#C9785D', pin = '#E46F6F', blush = '#F4A18E';
+  const feet = `<ellipse class="footL" cx="-8" cy="-3" rx="7" ry="4.5" fill="${ink}"/><ellipse class="footR" cx="8" cy="-3" rx="7" ry="4.5" fill="${ink}"/>`;
+  return `<ellipse class="shadow" cx="0" cy="0" rx="50" ry="8" fill="#1d2a18" opacity=".18"/>
+  <g class="flip">
+   <g class="p-bike hid">${bikeSVG(44, ink)}</g>
+   <g class="rig">
+    <path class="hold" d="M-6 -17 Q0 -11 6 -17" stroke="${ink}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <g class="mom" transform="translate(-22,0)"><g class="feet">${feet}</g>
+      <ellipse cx="0" cy="-22" rx="23" ry="20.5" fill="${w}" stroke="${ink}" stroke-width="2.8"/>
+      <path d="M-4 -42 q4 -9 10 -4 q-6 0 -6 6" fill="${w}" stroke="${ink}" stroke-width="2"/>
+      <g transform="translate(-13,-36)">${[0, 72, 144, 216, 288].map(a => `<circle cx="${(Math.cos(a * DEG) * 4).toFixed(1)}" cy="${(Math.sin(a * DEG) * 4).toFixed(1)}" r="3.4" fill="${pin}"/>`).join('')}<circle r="2" fill="#F7D774"/></g>
+      <g class="eyes"><g class="blink"><circle cx="-7" cy="-24" r="2.7" fill="${ink}"/><circle cx="7" cy="-24" r="2.7" fill="${ink}"/></g></g>
+      <g class="eyesC hid"><path d="M-10 -24 q3 2.5 6 0 M4 -24 q3 2.5 6 0" stroke="${ink}" stroke-width="2" fill="none" stroke-linecap="round"/></g>
+      <ellipse cx="-13" cy="-17" rx="4.5" ry="2.6" fill="${blush}" opacity=".8"/><ellipse cx="13" cy="-17" rx="4.5" ry="2.6" fill="${blush}" opacity=".8"/>
+      <path d="M-2 -18 q2 2 4 0" stroke="${ink}" stroke-width="1.6" fill="none"/>
+      <g class="p-cup hid" transform="translate(-22,-12)"><path d="M-6 -8 h12 l-1.5 10 h-9Z" fill="#F6F1E4" stroke="${ink}" stroke-width="1.8"/><path class="steam" d="M0 -12 q-3 -4 0 -8 q3 -4 0 -7" stroke="#fff" stroke-width="2" fill="none"/></g>
+    </g>
+    <g class="dad" transform="translate(24,0)"><g class="feet">${feet}</g>
+      <ellipse cx="0" cy="-26" rx="27" ry="24" fill="${w}" stroke="${ink}" stroke-width="2.8"/>
+      <path d="M-20 -41 Q0 -66 20 -41Z" fill="${cap}" stroke="${ink}" stroke-width="2.2"/><rect x="-21" y="-44" width="42" height="6" rx="3" fill="#B5634A" stroke="${ink}" stroke-width="1.8"/><circle cx="0" cy="-58" r="5" fill="#F2D486" stroke="${ink}" stroke-width="1.8"/>
+      <g class="eyes"><g class="blink"><circle cx="-8" cy="-27" r="2.6" fill="${ink}"/><circle cx="8" cy="-27" r="2.6" fill="${ink}"/></g></g>
+      <g class="eyesC hid"><path d="M-11 -27 q3 2.5 6 0 M5 -27 q3 2.5 6 0" stroke="${ink}" stroke-width="2" fill="none" stroke-linecap="round"/></g>
+      <circle cx="-8" cy="-27" r="6.5" fill="#fff" fill-opacity=".2" stroke="${ink}" stroke-width="1.8"/><circle cx="8" cy="-27" r="6.5" fill="#fff" fill-opacity=".2" stroke="${ink}" stroke-width="1.8"/><path d="M-1.5 -27 h3" stroke="${ink}" stroke-width="1.8"/>
+      <ellipse cx="-16" cy="-17" rx="4.5" ry="2.6" fill="${blush}" opacity=".8"/><ellipse cx="16" cy="-17" rx="4.5" ry="2.6" fill="${blush}" opacity=".8"/>
+      <path d="M-3 -16 q3 2.5 6 0" stroke="${ink}" stroke-width="1.6" fill="none"/>
+      <g class="p-book hid" transform="translate(22,-18)"><rect x="-10" y="-14" width="20" height="24" rx="2" fill="#F4EFE2" stroke="${ink}" stroke-width="1.8"/><path class="page" d="M-6 -8 h12 M-6 -3 h12 M-6 2 h9" stroke="${ink}" stroke-width="1.2"/></g>
+      <g class="p-can hid" transform="translate(36,-24) rotate(24)"><rect x="-12" y="-10" width="22" height="18" rx="4" fill="#8FB0C9" stroke="${ink}" stroke-width="2"/><path d="M10 -2 L26 -12" stroke="${ink}" stroke-width="3" stroke-linecap="round"/><path d="M-10 -10 q10 -12 18 0" fill="none" stroke="${ink}" stroke-width="2"/>
+        <g transform="translate(27,-11) rotate(-24)"><circle class="drop" r="2" fill="#8FB8D9"/><circle class="drop" r="2" fill="#8FB8D9" style="animation-delay:.35s" cx="3"/></g></g>
+      <g class="p-bag hid" transform="translate(30,-12)"><path d="M-11 -4 h22 l-3 16 h-16Z" fill="#D9B07A" stroke="${ink}" stroke-width="2"/><path d="M-8 -4 q8 -14 16 0" fill="none" stroke="${ink}" stroke-width="2"/><path d="M-3 -4 l-3 -14 M2 -4 l2 -13" stroke="#8DB26A" stroke-width="3.2" stroke-linecap="round"/></g>
+    </g>
+    <g class="zzz hid"><text class="zz" x="40" y="-70" font-size="18" fill="${ink}">z</text><text class="zz" x="46" y="-80" font-size="13" fill="${ink}" style="animation-delay:1.5s">z</text></g>
+   </g>
+  </g>`;
+}
+const PROPS = ['book', 'cup', 'can', 'bag', 'backpack', 'bike', 'rod'];
+
+class Actor {
+  constructor(kind, layer, scale) {
+    this.kind = kind; this.S = scale;
+    this.g = sg('g', { class: 'actor' }, layer);
+    // softer, thinner outlines to sit in the flat island world
+    this.g.innerHTML = (kind === 'pip' ? pipSVG() : tangSVG()).replace(/stroke-width="([\d.]+)"/g, (m, v) => `stroke-width="${(v * .72).toFixed(2)}"`);
+    const q = s => this.g.querySelector(s), qa = s => [...this.g.querySelectorAll(s)];
+    this.flip = q('.flip'); this.rig = q('.rig'); this.shadow = q('.shadow');
+    this.props = {}; for (const p of PROPS) this.props[p] = qa('.p-' + p);
+    this.wheels = qa('.wheel'); this.eyes = qa('.eyes'); this.eyesC = qa('.eyesC'); this.zzz = q('.zzz');
+    this.footL = qa('.footL'); this.footR = qa('.footR');
+    this.armL = q('.armL'); this.armR = q('.armR'); this.tail = q('.tail');
+    this.mom = q('.mom'); this.dad = q('.dad');
+    this.x = 0; this.y = 150; this.dir = 1; this.vis = 0; this.visTarget = 0; this.phase = 0; this.t = 0;
+    this.m = { type: 'stand' }; this.pauseT = 0; this.target = null; this.wheelA = 0; this.hopT = 0; this.sleep = false; this.li = null;
+    this.g.style.opacity = 0;
+  }
+  greet(type) { this.gesture = { type, t: 0 }; }
+  show(on, instant) { this.visTarget = on ? 1 : 0; if (instant) this.vis = this.visTarget; }
+  place(p) { this.x = p[0]; this.y = p[1]; }
+  setProps(list) { for (const p of PROPS) for (const e of this.props[p]) e.classList.toggle('hid', !list.includes(p)); }
+  setSleep(on) { this.sleep = on; this.eyes.forEach(e => e.classList.toggle('hid', on)); this.eyesC.forEach(e => e.classList.toggle('hid', !on)); this.zzz && this.zzz.classList.toggle('hid', !on); }
+  setMode(m) {
+    this.m = m; this.target = null; this.pauseT = 0; this.hopT = 0; this.li = null;
+    this.atAnchor = !!m.at && Math.hypot(this.x - m.at[0], this.y - m.at[1]) < 4;
+    this.setProps(m.props || []); if (!m.sleep) this.setSleep(false);
+  }
+  startPos() { const m = this.m; if (m.at) return m.at; if (m.pts) return m.pts[0]; if (m.rect) return [(m.rect[0] + m.rect[2]) / 2, (m.rect[1] + m.rect[3]) / 2]; return [this.x, this.y]; }
+  update(dt) {
+    this.t += dt;
+    const m = this.m; let moving = 0, lift = 0, sx = 1, sy = 1, bobA = 0, bobB = 0;
+    const vs = this.visTarget > this.vis ? 1.4 : 1.8;
+    this.vis = clamp(this.vis + Math.sign(this.visTarget - this.vis) * dt * vs, 0, 1);
+    const walkTo = (x, y, sp) => {
+      const dx = x - this.x, dy = y - this.y, d = Math.hypot(dx, dy);
+      if (d < 3) return true;
+      const st = Math.min(d, sp * dt); this.x += dx / d * st; this.y += dy / d * st;
+      if (Math.abs(dx) > .4) this.dir = Math.sign(dx); moving = sp; return false;
+    };
+    if (m.type === 'loop') {
+      if (this.li == null) { let bi = 0, bd = 1e9; m.pts.forEach((p, i) => { const d = Math.hypot(p[0] - this.x, p[1] - this.y); if (d < bd) { bd = d; bi = i; } }); this.li = bi; }
+      const p = m.pts[this.li]; if (walkTo(p[0], p[1], m.speed)) this.li = (this.li + 1) % m.pts.length;
+    } else if (m.type === 'leave') {
+      if (walkTo(m.to[0], m.to[1], 85)) this.visTarget = 0;
+    } else if (m.at && !this.atAnchor) {
+      if (walkTo(m.at[0], m.at[1], m.approach || 70)) this.atAnchor = true;
+    } else if (m.type === 'wander') {
+      if (this.pauseT > 0) this.pauseT -= dt;
+      else {
+        if (!this.target) this.target = [rand(m.rect[0], m.rect[2]), rand(m.rect[1], m.rect[3])];
+        if (walkTo(this.target[0], this.target[1], m.speed)) { this.target = null; this.pauseT = rand(1.2, 3.2); }
+      }
+    }
+    if (m.at && m.type !== 'leave' && Math.hypot(this.x - m.at[0], this.y - m.at[1]) > 4) this.atAnchor = false;
+    const settled = !m.at || this.atAnchor;
+    if (settled && m.face && !moving) this.dir = m.face;
+    if (moving && !m.bike) {
+      this.phase += dt * moving / 8.5;
+      const s = Math.sin(this.phase);
+      bobA = Math.abs(s) * 3.6; bobB = Math.abs(Math.cos(this.phase)) * 3.6;
+      this.footL.forEach(f => f.setAttribute('transform', `translate(0,${(-Math.max(0, s) * 5).toFixed(1)})`));
+      this.footR.forEach(f => f.setAttribute('transform', `translate(0,${(-Math.max(0, -s) * 5).toFixed(1)})`));
+      sy = 1 - .035 * Math.cos(2 * this.phase); sx = 2 - sy;
+      if (this.armL) { this.armL.setAttribute('transform', `rotate(${s * 14} -31 -34)`); this.armR.setAttribute('transform', `rotate(${-s * 14} 31 -34)`); }
+      if (this.tail) this.tail.setAttribute('transform', `rotate(${Math.sin(this.phase * 2) * 8} -14 -22)`);
+    } else if (!m.bike) {
+      const br = Math.sin(this.t * 2.1);
+      sy = 1 + .016 * br; sx = 1 - .01 * br;
+      if (settled && m.type === 'hop') {
+        this.hopT += dt; const P = m.period; const p = (this.hopT % P) / P;
+        if (p < .72) { lift = m.amp * Math.sin(Math.PI * p / .72); sy = 1.06; sx = .95; }
+        else { const q = (p - .72) / .28; sy = 1 - .16 * Math.sin(Math.PI * q); sx = 1 + .12 * Math.sin(Math.PI * q); }
+        if (this.mom) { const p2 = ((this.hopT + P / 2) % P) / P; bobB = p2 < .72 ? m.amp * .9 * Math.sin(Math.PI * p2 / .72) : 0; bobA = lift; lift = 0; }
+        if (this.armL) { this.armL.setAttribute('transform', `rotate(${-40 * Math.sin(Math.PI * p)} -31 -34)`); this.armR.setAttribute('transform', `rotate(${40 * Math.sin(Math.PI * p)} 31 -34)`); }
+      } else if (this.armL) { this.armL.removeAttribute('transform'); this.armR.removeAttribute('transform'); }
+      this.footL.forEach(f => f.removeAttribute('transform')); this.footR.forEach(f => f.removeAttribute('transform'));
+    }
+    let y = 0;
+    if (m.type === 'sit' && settled) { sy *= .93; sx *= 1.04; y = m.seat || 0; }
+    if (m.bike) {
+      y = -30; this.wheelA += dt * m.speed / 15;
+      this.wheels.forEach(w => w.setAttribute('transform', `translate(${w.dataset.x},-15) rotate(${(this.wheelA / DEG).toFixed(0)})`));
+      this.footL.forEach(f => f.setAttribute('transform', `translate(${Math.cos(this.wheelA * 1.2) * 4},${Math.sin(this.wheelA * 1.2) * 4})`));
+      this.footR.forEach(f => f.setAttribute('transform', `translate(${-Math.cos(this.wheelA * 1.2) * 4},${-Math.sin(this.wheelA * 1.2) * 4})`));
+      bobA = Math.abs(Math.sin(this.wheelA * 2)) * 1.5;
+    }
+    if (this.gesture) {
+      const G = this.gesture; G.t += dt; const T = G.t;
+      if (G.type === 'wave') { if (this.armR) this.armR.setAttribute('transform', `rotate(${(-120 + Math.sin(T * 12) * 22).toFixed(1)} 31 -34)`); else bobB = 7 + Math.sin(T * 12) * 5; if (T > 1.6) this.gesture = null; }
+      else if (G.type === 'hop') { const p = (T % .45) / .45; lift = Math.max(lift, 16 * Math.sin(Math.PI * p)); if (T > .9) this.gesture = null; }
+      else if (G.type === 'spin') { this.dir = Math.floor(T / .13) % 2 ? -1 : 1; lift = Math.max(lift, 6 * Math.abs(Math.sin(T * 12))); if (T > 1.04) this.gesture = null; }
+      else this.gesture = null;
+    }
+    const v = this.vis, sc = this.S * (v < 1 && this.visTarget === 1 ? easeOutBack(v) : (.6 + .4 * v));
+    this.g.setAttribute('transform', `translate(${this.x.toFixed(1)},${this.y.toFixed(1)}) scale(${Math.max(.001, sc).toFixed(3)})`);
+    this.g.style.opacity = Math.min(1, v * 1.6).toFixed(3);
+    this.flip.setAttribute('transform', `scale(${this.dir},1)`);
+    if (this.mom) {
+      this.rig.setAttribute('transform', `translate(0,${(y - lift).toFixed(1)}) scale(${sx.toFixed(3)},${sy.toFixed(3)})`);
+      this.mom.setAttribute('transform', `translate(-22,${(-bobA).toFixed(1)})`);
+      this.dad.setAttribute('transform', `translate(24,${(-bobB).toFixed(1)})`);
+    } else {
+      this.rig.setAttribute('transform', `translate(0,${(y - lift - bobA).toFixed(1)}) scale(${sx.toFixed(3)},${sy.toFixed(3)})`);
+    }
+    this.shadow.setAttribute('rx', (this.mom ? 50 : 30) * (1 - Math.min(lift, 30) / 60));
+  }
+}
+function behaviorFor(kind, place, activity, remoteNight) {
+  const pip = kind === 'pip', night = remoteNight > .5;
+  if (place === 'home') {
+    switch (activity) {
+      case 'resting': return { type: 'sit', at: LAY.sit, face: 1, seat: 4, props: night ? [] : (pip ? ['book'] : ['book', 'cup']), sleep: night };
+      case 'casual': return { type: 'stand', at: LAY.water, face: -1, props: ['can'] };
+      case 'walking': return { type: 'wander', rect: LAY.wander, speed: 34, props: [] };
+      default: return { type: 'hop', at: LAY.hop, face: 1, amp: pip ? 22 : 12, period: pip ? .62 : .95, props: [] };
+    }
+  }
+  switch (activity) {
+    case 'resting': return pip ? { type: 'sit', at: LAY.fish, face: 1, seat: 3, props: ['rod'] }
+      : { type: 'sit', at: [LAY.bench[0], LAY.bench[1] + 2], face: 1, seat: -24, props: ['cup'] };
+    case 'casual': return { type: 'loop', pts: OUT_LOOP, speed: 30, props: ['bag'] };
+    case 'walking': return { type: 'loop', pts: OUT_LOOP, speed: 55, props: pip ? ['backpack'] : [] };
+    default: return { type: 'loop', pts: OUT_LOOP, speed: 125, bike: true, props: ['bike'] };
+  }
+}
+
+/* ---------------------------- presence detector ---------------------------- */
+// Raw "someone is near" signal in → debounced "sustained presence" out.
+const DWELL_MS = 3000;
+class PresenceDetector {
+  constructor(onChange, dwell = DWELL_MS, grace = 2500) { this.onChange = onChange; this.dwell = dwell; this.grace = grace; this.near = false; this.nearSince = 0; this.farSince = 0; this.present = false; this.progress = 0; }
+  setNear(v) { this.near = !!v; }
+  skip() { this.near = true; this.nearSince = performance.now() - this.dwell; }
+  tick(now) {
+    if (this.near) {
+      this.farSince = 0; if (!this.nearSince) this.nearSince = now;
+      this.progress = clamp((now - this.nearSince) / this.dwell, 0, 1);
+      if (!this.present && this.progress >= 1) { this.present = true; this.onChange(true); }
+    } else {
+      this.nearSince = 0; this.progress = 0;
+      if (this.present) { if (!this.farSince) this.farSince = now; if (now - this.farSince > this.grace) { this.present = false; this.onChange(false); } }
+    }
+  }
+}
+
+/* ---------------------------- camera presence (on-device only) ---------------------------- */
+// Uses the iPad's front camera + MediaPipe face detection running locally in the browser.
+// No frame is uploaded, recorded or stored. Output is one boolean: "a face is close and facing the clock".
+const MP_VER = '0.10.14';
+const Camera = {
+  state: 'off', detail: '', near: false, preview: null,
+  async start(det) {
+    if (this.state === 'running' || this.state === 'starting') return;
+    this.state = 'starting'; this.detail = 'asking for camera…';
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }, audio: false });
+      const video = this.video = document.createElement('video');
+      video.muted = true; video.playsInline = true; video.setAttribute('playsinline', ''); video.srcObject = stream;
+      await video.play();
+      this.detail = 'loading face model…';
+      // Prefer the copy shipped in ./vendor/mediapipe (works offline); fall back to the CDN.
+      const root = location.pathname.replace(/(parents|me)\/?$/, '').replace(/[^/]*$/, '');
+      const local = location.origin + root + 'vendor/mediapipe/', cdn = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MP_VER}/`;
+      let vision, base;
+      for (const b of [local, cdn]) { try { vision = await import(b + 'vision_bundle.mjs'); base = b; break; } catch (e) {} }
+      if (!vision) throw new Error('could not load MediaPipe');
+      const files = await vision.FilesetResolver.forVisionTasks(base + 'wasm');
+      const models = [Q.get('model'), local + 'blaze_face_short_range.tflite', 'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite'].filter(Boolean);
+      let fd = null, lastErr;
+      for (const model of models) for (const delegate of ['GPU', 'CPU']) {
+        if (fd) break;
+        try { fd = await vision.FaceDetector.createFromOptions(files, { baseOptions: { modelAssetPath: model, delegate }, runningMode: 'VIDEO', minDetectionConfidence: .55 }); } catch (e) { lastErr = e; }
+      }
+      if (!fd) throw lastErr || new Error('face model failed to load');
+      this.fd = fd; this.state = 'running'; this.detail = 'watching (on-device)';
+      const minFace = parseFloat(Q.get('minface') || '0.14');   // face width as fraction of frame ≈ distance threshold
+      const hist = [];
+      const tick = () => {
+        if (this.state !== 'running') return;
+        if (video.readyState >= 2) {
+          const res = fd.detectForVideo(video, performance.now());
+          let ok = false, best = null;
+          for (const d of (res.detections || [])) {
+            const bb = d.boundingBox, wf = bb.width / (video.videoWidth || 640);
+            const k = d.keypoints || [];
+            let frontal = true;
+            if (k.length >= 3) { const ex = (k[0].x + k[1].x) / 2, span = Math.abs(k[0].x - k[1].x) || 1e-3; frontal = Math.abs(k[2].x - ex) / span < .45; }
+            if (!best || wf > best.wf) best = { wf, frontal, bb };
+            if (wf >= minFace && frontal) ok = true;
+          }
+          hist.push(ok); if (hist.length > 4) hist.shift();
+          this.near = hist.filter(Boolean).length >= 3;   // 3 of last 4 checks — ignores flicker
+          this.best = best;
+          det.setNear(this.near);
+          if (this.preview) this.drawPreview(video, best, minFace);
+        }
+        setTimeout(tick, 160);
+      };
+      tick();
+    } catch (e) {
+      this.state = 'error'; this.detail = (e && e.name === 'NotAllowedError') ? 'camera permission denied' : ('camera unavailable: ' + (e && e.message || e));
+    }
+  },
+  stop(det) {
+    this.state = 'off'; this.detail = ''; this.near = false; det && det.setNear(false);
+    if (this.video && this.video.srcObject) this.video.srcObject.getTracks().forEach(t => t.stop());
+  },
+  drawPreview(video, best, minFace) {
+    const c = this.preview, x = c.getContext('2d'); const W = c.width, H = c.height;
+    x.save(); x.scale(-1, 1); x.drawImage(video, -W, 0, W, H); x.restore();
+    if (best) { const s = W / video.videoWidth; x.strokeStyle = best.wf >= minFace && best.frontal ? '#8fe3a0' : '#e3c995'; x.lineWidth = 2; x.strokeRect(W - (best.bb.originX + best.bb.width) * s, best.bb.originY * s, best.bb.width * s, best.bb.height * s); }
+    x.fillStyle = this.near ? '#8fe3a0' : '#e9e2d6'; x.font = '11px sans-serif'; x.fillText(this.near ? 'near' : (best ? `face ${(best.wf * 100).toFixed(0)}% (need ${(minFace * 100).toFixed(0)}%)` : 'no face'), 6, H - 6);
+  }
+};
+
+/* ---------------------------- the clock ---------------------------- */
+let UIDN = 0;
+const pt = (r, deg) => [r * Math.sin(deg * DEG), -r * Math.cos(deg * DEG)];
+function arcPath(r, a0, a1) {
+  const [x0, y0] = pt(r, a0), [x1, y1] = pt(r, a1);
+  return `M${x0.toFixed(1)} ${y0.toFixed(1)} A${r} ${r} 0 ${(a1 - a0) > 180 ? 1 : 0} 1 ${x1.toFixed(1)} ${y1.toFixed(1)}`;
+}
+const MEET_Y_OFF = 6;
+
+class Clock {
+  constructor(host, id, opts = {}) {
+    this.id = id; this.shows = other(id); this.T = THEMES[id]; this.u = 'pb' + (++UIDN) + '_';
+    this.tz = opts.tz || PEOPLE[id].tz; this.remoteTz = PEOPLE[this.shows].tz;
+    this.slots = makeSlots(id, id === 'me' ? 7 : 3);
+    this.mode = 'ambient'; this.session = ''; this.present = false;
+    this.hands = { h: { a: 0, v: 0 }, m: { a: 0, v: 0 } }; this.handsInit = false; this.returning = false;
+    this.freezeUntil = 0; this.wiggleT0 = -1e9; this.tween = null;
+    this.tod = { night: 0, golden: 0 }; this.garden = null; this.hold = new Set(); this.noFresh = new Set();
+    this.tg = null; this.tm = null; this.lastBeat = 0; this.lastStatusKey = ''; this.focus = 0;
+    this.listeners = []; this.movers = []; this.momTimers = []; this.tgTimers = []; this.momentName = '';
+    this.build(host);
+    this.det = new PresenceDetector(p => p ? this.enterPresence() : this.leavePresence());
+    HUB.subscribe(s => this.onState(s));
+  }
+  on(fn) { this.listeners.push(fn); }
+  notify() { for (const f of this.listeners) f(this); }
+
+  build(host) {
+    const T = this.T, u = this.u;
+    const svg = this.svg = sg('svg', { viewBox: '-500 -500 1000 1000', class: 'pb-svg', 'aria-label': 'Peekabloom clock' }, host);
+    const [wx, wy] = LAY.house;
+    const winPts = T.place === 'philly' ? [[wx - 40, wy - 62], [wx + 40, wy - 62]] : [[wx - 34, wy - 52], [wx + 76, wy - 60]];
+    svg.innerHTML = `
+    <defs>
+      <radialGradient id="${u}sea" cx=".5" cy=".5" r=".5"><stop offset=".6" stop-color="${T.sea0}"/><stop offset="1" stop-color="${T.sea1}"/></radialGradient>
+      <radialGradient id="${u}halo"><stop offset="0" stop-color="#FFF4C8" stop-opacity=".95"/><stop offset=".45" stop-color="#FFE6A0" stop-opacity=".35"/><stop offset="1" stop-color="#FFE6A0" stop-opacity="0"/></radialGradient>
+      <radialGradient id="${u}fhalo"><stop offset="0" stop-color="#FFF6D8" stop-opacity=".9"/><stop offset="1" stop-color="#FFF6D8" stop-opacity="0"/></radialGradient>
+      <radialGradient id="${u}light"><stop offset="0" stop-color="#FFE9A6" stop-opacity=".85"/><stop offset=".4" stop-color="#FFD978" stop-opacity=".3"/><stop offset="1" stop-color="#FFD978" stop-opacity="0"/></radialGradient>
+      <radialGradient id="${u}focus"><stop offset="0" stop-color="#FFF8E2" stop-opacity=".55"/><stop offset="1" stop-color="#FFF8E2" stop-opacity="0"/></radialGradient>
+      ${MOON_HUES.map((h, i) => `<linearGradient id="${u}moonp${i}" x1="0" y1="0" x2="0" y2="-1" gradientUnits="objectBoundingBox"><stop offset="0" stop-color="${h[0]}"/><stop offset=".55" stop-color="${h[1]}"/><stop offset="1" stop-color="${h[2]}"/></linearGradient>`).join('')}
+      <linearGradient id="${u}streak" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FFFBE6"/><stop offset="1" stop-color="#FFFBE6" stop-opacity="0"/></linearGradient>
+      <radialGradient id="${u}vig" cx=".5" cy=".5" r=".5"><stop offset=".62" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#2a1e10" stop-opacity=".55"/></radialGradient>
+      <radialGradient id="${u}rimglow" cx=".5" cy=".5" r=".5"><stop offset=".78" stop-color="${T.glow}" stop-opacity="0"/><stop offset=".95" stop-color="${T.glow}" stop-opacity=".75"/><stop offset="1" stop-color="#FFF6DA" stop-opacity=".95"/></radialGradient>
+      <radialGradient id="${u}night" cx=".5" cy=".42" r=".6"><stop offset="0" stop-color="#2A356B"/><stop offset="1" stop-color="#121838"/></radialGradient>
+      <clipPath id="${u}clip"><circle r="480"/></clipPath>
+    </defs>
+    <g clip-path="url(#${u}clip)">
+      <circle r="480" fill="url(#${u}sea)"/>
+      <g class="world">${islandSVG(this.id, T)}</g>
+      <circle class="focus" r="150" fill="url(#${u}focus)" opacity="0"/>
+      <g class="garden-back"></g>
+      <g class="under"></g>
+      <g class="chars-slot"></g>
+      <g class="fx"></g>
+      <circle class="tint-gold" r="480" fill="#FFB27A" opacity="0" pointer-events="none"/>
+      <circle class="tint-night" r="480" fill="url(#${u}night)" opacity="0" pointer-events="none"/>
+      <g class="nightfx" opacity="0">
+        <g class="stars"></g>
+        <g transform="translate(-318,-268)"><circle r="30" fill="#FFF3CF" opacity=".15"/><path d="M7 -19 A20 20 0 1 0 7 19 A16 16 0 1 1 7 -19Z" fill="#FFF1C4"/></g>
+        <circle class="lampglow" cx="${LAY.lamp[0]}" cy="${LAY.lamp[1] - 76}" r="70" fill="url(#${u}light)"/>
+        ${winPts.map(([x, y]) => `<circle class="winglow" cx="${x}" cy="${y}" r="58" fill="url(#${u}light)"/>`).join('')}
+        <g class="fireflies"></g>
+      </g>
+      <g class="chars"></g>
+      <g class="fxTop"></g>
+      <rect class="tm-veil" x="-500" y="-500" width="1000" height="1000" fill="#F3E3C4" opacity="0" pointer-events="none"/>
+      <circle class="tm-vig" r="480" fill="url(#${u}vig)" opacity="0" pointer-events="none"/>
+      <g class="dial fade"></g>
+      <g class="tm-ring" opacity="0"></g>
+      <g class="handsG">
+        <path class="hand-h" d="M-8 14 Q-15 -70 0 -205 Q15 -70 8 14Z" fill="${T.ink}" stroke="#FFFBF0" stroke-width="3.5" paint-order="stroke"/>
+        <path class="hand-m" d="M-6 16 Q-10 -120 0 -318 Q10 -120 6 16Z" fill="${T.ink}" stroke="#FFFBF0" stroke-width="3.5" paint-order="stroke"/>
+        <g class="hand-s fade"><path d="M0 46 V-350" stroke="${T.accent}" stroke-width="2.6" stroke-linecap="round"/><circle cy="-350" r="5" fill="${T.accent}"/><circle cy="40" r="7" fill="${T.accent}"/></g>
+        <g class="hand-mem" opacity="0"><path d="M-5 20 Q-8 -140 0 -372 Q8 -140 5 20Z" fill="#C9A24E" stroke="#FFF8E4" stroke-width="3" paint-order="stroke"/><path d="M0 -392 l5 10 l11 1 l-8 7 l3 11 l-11 -6 l-11 6 l3 -11 l-8 -7 l11 -1Z" fill="#F4D27A" stroke="#B88A2E" stroke-width="1.2"/></g>
+        <g class="cap">${[0, 72, 144, 216, 288].map(a => `<ellipse cx="0" cy="-9" rx="6" ry="9" transform="rotate(${a})" fill="#FFFBF0"/>`).join('')}<circle r="6" fill="${T.accent}"/></g>
+      </g>
+      <text class="digital fade" x="0" y="-306" text-anchor="middle" font-size="32" fill="${T.ink}" stroke="#FFFBF0" stroke-width="6" paint-order="stroke" opacity="0" letter-spacing="2"></text>
+      <g class="tm-btn fade" opacity="0" transform="translate(0,-262)" style="cursor:pointer">
+        <circle r="20" fill="#FFFBF0" fill-opacity=".85"/>
+        <path d="M7 -8 A10 10 0 1 0 10 3" fill="none" stroke="${T.ink}" stroke-width="2.2" stroke-linecap="round"/><path d="M3 -12 L8 -8 L3 -3" fill="none" stroke="${T.ink}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle r="34" fill="transparent"/>
+      </g>
+      <circle class="rimglow" r="480" fill="url(#${u}rimglow)" opacity="0" pointer-events="none"/>
+      <circle class="noticing" r="470" fill="none" stroke="#FFFBF0" stroke-width="4" opacity="0" transform="rotate(-90)" stroke-linecap="round"/>
+    </g>`;
+    const q = s => svg.querySelector(s);
+    this.$ = {
+      tintGold: q('.tint-gold'), tintNight: q('.tint-night'), nightfx: q('.nightfx'), stars: q('.stars'), ff: q('.fireflies'),
+      winglow: [...svg.querySelectorAll('.winglow')], lampglow: q('.lampglow'), win: [...svg.querySelectorAll('.win')], smoke: q('.smokeG'), focus: q('.focus'),
+      gBack: q('.garden-back'), chars: q('.chars'), fx: q('.fx'), fxTop: q('.fxTop'), under: q('.under'), dial: q('.dial'), tmRing: q('.tm-ring'),
+      hh: q('.hand-h'), hm: q('.hand-m'), hs: q('.hand-s'), mem: q('.hand-mem'), digital: q('.digital'), tmBtn: q('.tm-btn'),
+      rimglow: q('.rimglow'), noticing: q('.noticing'), veil: q('.tm-veil'), vig: q('.tm-vig')
+    };
+    this.$.noticing.setAttribute('stroke-dasharray', `0 ${2 * Math.PI * 470}`);
+    this.buildDial(); this.buildSky();
+    this.main = new Actor(PEOPLE[this.shows].char, this.$.chars, 1.0);
+    this.guest = new Actor(PEOPLE[this.id].char, this.$.chars, 1.0);
+    this.$.tmBtn.addEventListener('pointerdown', e => { e.stopPropagation(); this.toggleTimeMachine(); });
+    svg.addEventListener('pointerdown', e => this.tmPointer(e, 'down'));
+    svg.addEventListener('pointermove', e => this.tmPointer(e, 'move'));
+    window.addEventListener('pointerup', () => { if (this.tm) this.tm.drag = false; });
+  }
+  buildDial() {
+    // hour markers float on the water around the island
+    const T = this.T; let s = '';
+    for (let i = 0; i < 60; i++) { if (i % 5 === 0) continue; const [x, y] = pt(458, i * 6); s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2" fill="${T.marker}" opacity=".6"/>`; }
+    for (let i = 0; i < 12; i++) {
+      const big = i % 3 === 0, a = i * 30, [x0, y0] = pt(big ? 436 : 444, a), [x1, y1] = pt(470, a);
+      s += `<line x1="${(x0 + 1.5).toFixed(1)}" y1="${(y0 + 2.5).toFixed(1)}" x2="${(x1 + 1.5).toFixed(1)}" y2="${(y1 + 2.5).toFixed(1)}" stroke="#000" stroke-opacity=".12" stroke-width="${big ? 11 : 7}" stroke-linecap="round"/>`;
+      s += `<line x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${x1.toFixed(1)}" y2="${y1.toFixed(1)}" stroke="${T.marker}" stroke-width="${big ? 11 : 7}" stroke-linecap="round"/>`;
+    }
+    this.$.dial.innerHTML = s;
+  }
+  buildSky() {
+    let s = ''; const r = mulberry32(11);
+    for (let i = 0; i < 60; i++) {
+      const a = r() * 2 * Math.PI, rad = 400 + r() * 78, x = rad * Math.sin(a), y = -rad * Math.cos(a);
+      if (Math.hypot(x, y) < ISL(a) + 24) continue;
+      s += `<circle class="star" cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${(1 + r() * 1.6).toFixed(1)}" fill="#FFF6D8" style="animation-delay:${(r() * 3).toFixed(1)}s"/>`;
+    }
+    this.$.stars.innerHTML = s;
+    let f = '';
+    for (let i = 0; i < 11; i++) { let x, y; do { x = (r() - .5) * 640; y = (r() - .5) * 640; } while (blocked(x, y, this.id) && r() < .9); f += `<g transform="translate(${x.toFixed(0)},${y.toFixed(0)})"><circle class="firefly" r="3.4" fill="#F6FFB0" style="animation-delay:${(-r() * 7).toFixed(1)}s;filter:drop-shadow(0 0 6px #F0FF9A)"/></g>`; }
+    this.$.ff.innerHTML = f;
+  }
+
+  /* ---------- state from hub ---------- */
+  onState(s) {
+    this.s = s;
+    const rp = s.presence[this.shows] || {};
+    this.remotePresent = !!rp.present && (Date.now() - (rp.ts || 0) < 25000);
+    this.remoteSession = rp.session;
+    const st = s.status[this.shows] || { place: 'home', activity: 'resting' };
+    const key = st.place + '/' + st.activity;
+    if (key !== this.lastStatusKey) { this.lastStatusKey = key; this.status = st; if (this.mode === 'presence' && !this.tg && !this.tm) this.applyStatus(st); }
+    this.renderGarden(s.gardens[this.id] || {});
+    this.checkTogether();
+    this.notify();
+  }
+  applyStatus(st, sceneOnly) {
+    const m = behaviorFor(this.main.kind, st.place, st.activity, this.remoteTod ? this.remoteTod.night : 0);
+    if (!sceneOnly) { this.main.setMode(m); if (m.sleep) this.main.setSleep(true); }
+    this.place = st.place;
+    this.houseState(st.place === 'home' ? 'home' : 'away');
+    const f = st.place === 'home' ? LAY.homeFocus : LAY.outFocus;
+    this.$.focus.setAttribute('cx', f[0]); this.$.focus.setAttribute('cy', f[1]);
+  }
+  // HOME vs OUT is told by the world itself: lights and chimney smoke when they're home,
+  // a quiet dark house when they're out — and the hands turn toward where they are.
+  houseState(s) { this.house = s; this.$.smoke.classList.toggle('hid', s !== 'home'); }
+
+  /* ---------- garden ---------- */
+  renderGarden(g) {
+    const json = JSON.stringify(g);
+    if (json === this.gardenJSON) return;
+    const prev = this.garden; this.garden = JSON.parse(json); this.gardenJSON = json;
+    const list = Object.values(this.garden);
+    let moonI = 0; const placed = [];
+    list.sort((a, b) => (a.slot ?? 0) - (b.slot ?? 0) || a.ts - b.ts);
+    for (const f of list) {
+      let x, y, s;
+      if (f.type === 'moon') { const ms = MOON_SLOTS[moonI % MOON_SLOTS.length]; const lap = Math.floor(moonI / MOON_SLOTS.length); moonI++; x = ms[0] + lap * 16; y = ms[1] + lap * 6; s = .95; }
+      else { const i = f.slot | 0, lap = Math.floor(i / this.slots.length), sl = this.slots[i % this.slots.length]; x = sl.x + lap * 9; y = sl.y + lap * 5; s = sl.s * (lap ? .85 : 1); }
+      placed.push({ f, x, y, s });
+    }
+    placed.sort((a, b) => a.y - b.y);
+    let back = ''; const freshFound = []; const now = Date.now();
+    placed.forEach(({ f, x, y, s }, i) => {
+      if (this.hold.has(f.id)) return;
+      const isFresh = (this.popNext && this.popNext.has(f.id)) || prev && !this.noFresh.has(f.id) && (!prev[f.id] || (prev[f.id].stage | 0) < (f.stage | 0));
+      if (isFresh) freshFound.push({ x, y });
+      const recent = now - (f.ts || 0) < 6 * 3600e3 && f.type !== 'moon';
+      const cls = isFresh ? 'flw fresh' : (!prev ? 'flw intro' : 'flw');
+      const st = !prev ? `animation-delay:${(i * .05).toFixed(2)}s` : '';
+      const halo = recent ? `<circle class="halo" cy="${-STEM_H[f.stage | 0]}" r="${18 + (f.stage | 0) * 4}" fill="url(#${this.u}fhalo)"/>` : '';
+      const d = (4 + (f.id.charCodeAt(f.id.length - 1) % 30) / 10).toFixed(1), dl = (-(i * 0.37) % 5).toFixed(2), a = f.type === 'moon' ? 2 : 2.5 + (i % 3);
+      back += `<g transform="translate(${x.toFixed(1)},${y.toFixed(1)}) scale(${s.toFixed(2)})"><g class="${cls}" style="${st}">${halo}<g class="flw sway" style="--d:${d}s;--dl:${dl}s;--a:${a}deg">${flowerSVG(f, this.T, this.u)}</g></g></g>`;
+    });
+    this.$.gBack.innerHTML = back;
+    this.noFresh.clear(); this.popNext = null;
+    if (freshFound.length) { Sound.play('bud'); freshFound.forEach(p => this.sparkle(p.x, p.y - 30, 8, '#FFF3C4')); }
+  }
+  registerVisit() {
+    // One sustained viewing session = one meaningful interaction on the OTHER clock.
+    const target = this.shows, g = (this.s.gardens[target]) || {}, now = Date.now();
+    const growing = Object.values(g).filter(f => f.type !== 'moon' && (f.stage | 0) < 3).sort((a, b) => a.ts - b.ts)[0];
+    if (growing) HUB.set(['gardens', target, growing.id], { ...growing, stage: (growing.stage | 0) + 1, ts: now });
+    else {
+      const usedSlots = new Set(Object.values(g).filter(f => f.type !== 'moon').map(f => f.slot));
+      let slot = 0; while (usedSlots.has(slot)) slot++;
+      const types = THEMES[target].flowers, id = 'f' + now.toString(36) + rid().slice(0, 3);
+      HUB.set(['gardens', target, id], { id, type: types[Math.floor(Math.random() * types.length)], stage: 0, slot, ts: now, from: this.id });
+    }
+  }
+  sparkle(x, y, n = 10, color = '#FFF3C4', spread = 60) {
+    let s = '';
+    for (let i = 0; i < n; i++) { const a = rand(0, 360) * DEG, r = rand(spread * .4, spread); s += `<circle class="spark" cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${rand(2, 4.5).toFixed(1)}" fill="${color}" style="--dx:${(Math.cos(a) * r).toFixed(0)}px;--dy:${(Math.sin(a) * r).toFixed(0)}px;animation-delay:${rand(0, .3).toFixed(2)}s"/>`; }
+    const g = sg('g', {}, this.$.fx); g.innerHTML = s; setTimeout(() => g.remove(), 2200);
+  }
+
+  /* ---------- presence ---------- */
+  enterPresence() {
+    this.present = true; this.mode = 'presence'; this.session = rid() + rid();
+    HUB.set(['presence', this.id], { present: true, session: this.session, ts: Date.now() });
+    this.lastBeat = Date.now();
+    const now = performance.now();
+    this.wiggleT0 = now; this.freezeUntil = now + 750; this.returning = false;
+    this.remoteTod = todFor(this.hourIn(this.remoteTz));
+    Sound.play('presence');
+    this.$.hs.style.opacity = 0;
+    setTimeout(() => { if (!this.present) return; this.applyStatus(this.status || this.s.status[this.shows], !!this.tg); this.$.digital.style.opacity = .9; this.$.tmBtn.style.opacity = .9; this.focus = 1; }, 650);
+    setTimeout(() => {
+      if (!this.present || this.main.visTarget === 1) return;
+      this.main.place(this.main.startPos()); this.main.atAnchor = !!this.main.m.at; this.main.li = null;
+      this.main.show(true); this.sparkle(this.main.x, this.main.y - 40, 12, this.T.glow, 60);
+      // a different little hello every time
+      const hello = ['wave', 'hop', 'spin', 'heart'][Math.floor(Math.random() * 4)];
+      setTimeout(() => { if (!this.present || this.tg) return; if (hello === 'heart') this.heart(this.main.x, this.main.y - 95); else this.main.greet(hello); }, 900);
+    }, 1300);
+    setTimeout(() => { if (this.present && !this.tg && !this.momentName) this.playMoment(this.pickMoment()); }, 1900);
+    this.registerVisit();
+    this.checkTogether();
+    this.notify();
+  }
+  leavePresence() {
+    this.present = false; this.mode = 'ambient';
+    HUB.set(['presence', this.id], { present: false, session: this.session, ts: Date.now() });
+    if (this.tm) this.endTimeMachine(true);
+    if (this.tg) this.endTogether(true);
+    const now = performance.now();
+    this.wiggleT0 = now; this.freezeUntil = now + 600; this.returning = true;
+    this.main.show(false); this.guest.show(false); this.clearMoment();
+    this.houseState('ambient'); this.focus = 0;
+    this.$.digital.style.opacity = 0; this.$.tmBtn.style.opacity = 0; this.$.hs.style.opacity = 1;
+    this.notify();
+  }
+  heart(x, y) {
+    const g = sg('g', { class: 'mom-only', transform: `translate(${x.toFixed(0)},${y.toFixed(0)}) scale(1.3)` }, this.$.fxTop);
+    g.innerHTML = `<path class="rise" d="M0 0 C-7 -9 -18 -2 0 12 C18 -2 7 -9 0 0Z" fill="#F28B95" style="--dx:6px"/>`;
+    setTimeout(() => g.remove(), 3600);
+  }
+  hourIn(tz) { const l = local(Date.now(), tz); return l.h + l.mi / 60 + l.s / 3600; }
+
+  /* ---------- togetherness ---------- */
+  checkTogether() {
+    if (this.present && this.remotePresent && this.remoteSession) {
+      const key = [this.session, this.remoteSession].sort().join('_');
+      if (!this.tg || this.tg.key !== key) { if (this.tg) this.endTogether(true); this.startTogether(key); }
+    } else if (this.tg) this.endTogether(false);
+  }
+  startTogether(key) {
+    if (this.tm) this.endTimeMachine(true);
+    this.clearMoment();
+    const fid = 'tg_' + key, hsh = strHash(key);
+    const mine = (this.s.gardens[this.id] || {})[fid];
+    const n = Object.values(this.s.gardens[this.id] || {}).filter(f => f.type === 'moon').length - (mine ? 1 : 0);
+    const ms = MEET;
+    // the same key on both clocks → the same flower colour and the same little scene on both sides
+    const hue = hsh % MOON_HUES.length, variant = TG_VARIANTS.includes(Q.get('tgv')) ? Q.get('tgv') : TG_VARIANTS[(hsh >>> 4) % TG_VARIANTS.length];
+    this.tg = { key, fid, hue, variant, t0: performance.now(), stage: 0, last: 0, moonPos: { x: ms[0], y: ms[1] } };
+    if (!mine) {
+      this.hold.add(fid);
+      HUB.set(['gardens', this.id, fid], { id: fid, type: 'moon', hue, stage: 3, slot: 1000 + n, ts: Date.now() });
+    } else { this.tg.stage = 3; this.tg.moonPos = null; this.startTgVariant(this.tg); }
+    const mx = ms[0], my = ms[1] + MEET_Y_OFF;
+    this.tg.a = [mx - 64, my]; this.tg.b = [mx + 64, my]; this.tg.mid = [mx, my];
+    this.main.setMode({ type: 'stand', at: this.tg.a, face: 1, approach: 90 });
+    // the visitor arrives from the little dock, as if stepping off a boat
+    this.guest.place([LAY.dock[0], LAY.dock[1] + 30]); this.guest.vis = 0; this.guest.visTarget = 1;
+    this.guest.setMode({ type: 'stand', at: this.tg.b, face: -1, approach: 75 });
+    if (this.main.visTarget === 0) { this.main.show(true); this.main.place(this.tg.a); this.main.atAnchor = true; }
+    this.$.rimglow.style.transition = 'opacity 2.5s ease'; this.$.rimglow.setAttribute('opacity', 1);
+    Sound.play('together');
+    this.notify();
+  }
+  endTogether(abrupt) {
+    const tg = this.tg; this.tg = null;
+    // the shared bloom now settles into its own spot in the garden
+    if (tg) { this.hold.delete(tg.fid); this.popNext = new Set([tg.fid]); this.gardenJSON = null; this.renderGarden(this.s.gardens[this.id] || {}); }
+    if (this.grow) { this.grow.remove(); this.grow = null; }
+    this.svg.querySelectorAll('.tg-only').forEach(e => e.remove()); this.bf = null;
+    this.movers = this.movers.filter(m => !m.tg);
+    (this.tgTimers || []).forEach(clearInterval); this.tgTimers = [];
+    this.$.rimglow.setAttribute('opacity', 0);
+    if (abrupt) this.guest.show(false);
+    else this.guest.setMode({ type: 'leave', to: [LAY.dock[0], LAY.dock[1] + 30] });
+    if (this.present) this.applyStatus(this.status);
+    this.notify();
+  }
+  tgPose(kind) {
+    const tg = this.tg;
+    if (kind === 'sit') { this.main.setMode({ type: 'sit', at: tg.a, face: 1, seat: 4 }); this.guest.setMode({ type: 'sit', at: tg.b, face: -1, seat: 4 }); }
+    if (kind === 'stand') { this.main.setMode({ type: 'stand', at: tg.a, face: 1 }); this.guest.setMode({ type: 'stand', at: tg.b, face: -1 }); }
+    if (kind === 'hop') { this.main.setMode({ type: 'hop', at: tg.a, face: 1, amp: 14, period: .6 }); this.guest.setMode({ type: 'hop', at: tg.b, face: -1, amp: 14, period: .6 }); }
+  }
+  tickTogether(now, dt) {
+    const tg = this.tg; if (!tg) return;
+    const t = (now - tg.t0) / 1000;
+    const arrived = this.main.atAnchor && this.guest.atAnchor;
+    if (tg.stage === 0 && (arrived || t > 8)) {
+      tg.stage = 1; tg.ts = t;
+      this.main.setMode({ type: 'hop', at: tg.a, face: 1, amp: 16, period: .55 });
+      this.guest.setMode({ type: 'hop', at: tg.b, face: -1, amp: 16, period: .55 });
+      this.sparkle(tg.mid[0], tg.a[1] - 80, 16, '#FFF1C2', 80);
+    }
+    if (tg.stage === 1 && t - tg.ts > 1.7) {
+      tg.stage = 2; tg.ts = t;
+      this.tgPose('stand');
+      if (tg.moonPos) {
+        const g = this.grow = sg('g', { class: 'tg-only', transform: `translate(${tg.moonPos.x},${tg.moonPos.y}) scale(.95)` }, this.$.fx);
+        g.innerHTML = `<g class="flw" style="animation:pop 2.6s cubic-bezier(.2,1.2,.4,1) both">${moonSVG(this.u, 1, tg.hue)}</g>`;
+        for (let i = 0; i < 10; i++) setTimeout(() => this.tg === tg && this.sparkle(tg.moonPos.x + rand(-40, 40), tg.moonPos.y - 70 + rand(-30, 30), 3, '#FFF6D2', 40), i * 220);
+      }
+    }
+    if (tg.stage === 2 && t - tg.ts > 3.2) {
+      tg.stage = 3; tg.ts = t; tg.last = t;
+      this.startTgVariant(tg);
+      Push.together(this, tg.key);
+    }
+    if (tg.stage === 3) {
+      const v = tg.variant;
+      if (v === 'dance') {
+        if (t - tg.last > 3.2) { tg.last = t; this.main.greet('spin'); this.guest.greet('spin'); this.note(); }
+      } else if (v === 'butterfly' || v === 'picnic' || v === 'stars') {
+        if (t - tg.last > 8) {
+          tg.last = t; this.tgPose('hop');
+          setTimeout(() => { if (this.tg === tg) this.tgPose('sit'); }, 2400);
+        }
+      } else if (v === 'kite' && t - tg.last > 6) { tg.last = t; this.main.greet('wave'); }
+      if (Math.random() < dt * 1.2) { const g = sg('circle', { class: 'rise tg-only', cx: (tg.a[0] + rand(-80, 210)).toFixed(0), cy: (tg.a[1] + rand(-40, 60)).toFixed(0), r: rand(1.5, 3.5).toFixed(1), fill: '#FFF2BF', style: `--dx:${rand(-20, 20).toFixed(0)}px` }, this.$.fx); setTimeout(() => g.remove(), 3600); }
+    }
+  }
+  // Six small variations of the shared moment, picked from the shared key
+  startTgVariant(tg) {
+    const v = tg.variant, [mx, my] = tg.mid, T = this.T;
+    this.tgTimers = this.tgTimers || [];
+    if (v === 'butterfly') { this.tgPose('sit'); this.addButterfly(true, () => [(this.main.x + this.guest.x) / 2, (this.main.y + this.guest.y) / 2 - 110], 110); }
+    if (v === 'picnic') {
+      const g = sg('g', { class: 'tg-only', transform: `translate(${mx},${my - 6})` }, this.$.under);
+      let checks = ''; for (let i = -5; i <= 5; i++) checks += `<path d="M${i * 20} -24 L${i * 20 + 14} 24" stroke="#fff" stroke-opacity=".45" stroke-width="7"/>`;
+      g.innerHTML = `<g style="animation:pop 1s ease both"><ellipse rx="118" ry="32" fill="#E9897A"/><clipPath id="${this.u}pc"><ellipse rx="118" ry="32"/></clipPath><g clip-path="url(#${this.u}pc)">${checks}</g>
+        <g transform="translate(34,16)"><ellipse cy="2" rx="16" ry="5" fill="#000" opacity=".12"/><path d="M-12 0 Q-14 -18 0 -20 Q14 -18 12 0Z" fill="#F4F1E6"/><path d="M12 -12 q10 -2 12 -10" stroke="#F4F1E6" stroke-width="4" fill="none"/><circle cy="-22" r="3" fill="#C9785D"/><path class="steam" d="M18 -26 q-3 -5 0 -9" stroke="#fff" stroke-width="2" fill="none"/></g>
+        <g transform="translate(-30,18)"><rect x="-6" y="-9" width="12" height="10" rx="2" fill="#fff"/><rect x="10" y="-9" width="12" height="10" rx="2" fill="#fff"/></g>
+        <g transform="translate(-4,22)"><circle r="7" fill="#F2C94C"/><circle cx="12" cy="-2" r="6" fill="#E46F6F"/></g></g>`;
+      this.tgPose('sit');
+    }
+    if (v === 'dance') { this.tgPose('hop'); }
+    if (v === 'lanterns') {
+      this.tgPose('sit');
+      const rel = () => { if (this.tg !== tg) return; const g = sg('g', { class: 'tg-only' }, this.$.fxTop); g.innerHTML = lanternSVG(mx + rand(-30, 30), my - 70, 900, 14); setTimeout(() => g.remove(), 14500); };
+      rel(); this.tgTimers.push(setInterval(rel, 2600));
+    }
+    if (v === 'kite') {
+      this.tgPose('stand');
+      const g = sg('g', { class: 'tg-only' }, this.$.fxTop);
+      g.innerHTML = `<path class="kstring" stroke="#fff" stroke-opacity=".8" stroke-width="1.4" fill="none"/><g class="kite"><path d="M0 -26 L18 0 L0 30 L-18 0Z" fill="${T.accent}"/><path d="M0 -26 L0 30 M-18 0 L18 0" stroke="#fff" stroke-opacity=".6" stroke-width="1.5"/><path class="ktail" d="M0 30 q-8 12 0 22 q8 10 0 22" stroke="#E46F6F" stroke-width="2.5" fill="none"/></g>`;
+      const str = g.querySelector('.kstring'), kite = g.querySelector('.kite');
+      this.movers.push({ tg: true, t0: performance.now(), fn: t => {
+        const kx = mx + 40 + Math.sin(t * .7) * 40, ky = my - 250 + Math.cos(t * 1.1) * 18;
+        kite.setAttribute('transform', `translate(${kx.toFixed(1)},${ky.toFixed(1)}) rotate(${(Math.sin(t * .9) * 14).toFixed(1)})`);
+        const hx = this.main.x + 22, hy = this.main.y - 40;
+        str.setAttribute('d', `M${hx.toFixed(1)} ${hy.toFixed(1)} Q${((hx + kx) / 2 + 30).toFixed(1)} ${((hy + ky) / 2 + 40).toFixed(1)} ${kx.toFixed(1)} ${(ky + 28).toFixed(1)}`);
+      } });
+    }
+    if (v === 'stars') {
+      this.tgPose('sit');
+      const shoot = () => this.tg === tg && this.shootingStar(true);
+      shoot(); this.tgTimers.push(setInterval(shoot, 3200));
+    }
+  }
+  note() {
+    const g = sg('text', { class: 'rise tg-only', x: (this.tg.mid[0] + rand(-60, 60)).toFixed(0), y: (this.tg.mid[1] - 90).toFixed(0), 'font-size': 26, fill: '#FFF8E2', stroke: this.T.ink, 'stroke-width': 1, style: `--dx:${rand(-20, 20).toFixed(0)}px` }, this.$.fxTop);
+    g.textContent = Math.random() < .5 ? '♪' : '♫'; setTimeout(() => g.remove(), 3600);
+  }
+  addButterfly(tg, centerFn, R = 110, color = '#F6C9D6', speed = 1) {
+    const g = sg('g', { class: tg ? 'tg-only' : 'mom-only' }, this.$.fx);
+    g.innerHTML = `<g transform="scale(1.1)"><ellipse class="wing" cx="-7" cy="-2" rx="8" ry="10" fill="${color}"/><ellipse class="wing r" cx="7" cy="-2" rx="8" ry="10" fill="${color}"/><ellipse rx="1.8" ry="7" fill="${this.T.ink}"/></g>`;
+    const ph = rand(0, 6);
+    this.movers.push({ tg, mom: !tg, t0: performance.now(), fn: t => {
+      const [cx, cy] = centerFn(); const tt = t * speed + ph;
+      g.setAttribute('transform', `translate(${(cx + Math.sin(tt * .9) * R).toFixed(1)},${(cy + Math.sin(tt * 1.7) * R * .3).toFixed(1)}) rotate(${(Math.cos(tt * .9) * 20).toFixed(0)})`);
+    } });
+  }
+  shootingStar(tg) {
+    const x0 = rand(-380, 120), y0 = rand(-440, -300);
+    const g = sg('g', { class: (tg ? 'tg-only' : 'mom-only') }, this.$.fxTop);
+    g.innerHTML = `<g class="shoot" style="--x0:${x0.toFixed(0)}px;--y0:${y0.toFixed(0)}px"><path d="M0 0 L-90 -38" stroke="url(#${this.u}streak)" stroke-width="3" stroke-linecap="round"/><circle r="3.2" fill="#FFFBE6"/></g>`;
+    setTimeout(() => g.remove(), 1700);
+  }
+
+  /* ---------- presence "moments": a small surprise that differs every visit ---------- */
+  pickMoment() {
+    const night = (this.remoteTod || this.tod).night > .5;
+    const mo = local(Date.now(), this.remoteTz).mo, winter = [10, 11, 0, 1].includes(mo);
+    let pool = night ? ['shooting', 'lanterns', 'boat', 'fireflies', 'cat'] : ['petals', 'butterflies', 'balloon', 'boat', 'bird', 'cat', 'rainbow'];
+    if (winter) pool.push('snow');
+    let last = ''; try { last = localStorage.getItem('pb.moment.' + this.id) || ''; } catch (e) {}
+    if (Q.get('moment') && pool.includes(Q.get('moment'))) pool = [Q.get('moment')];
+    else pool = pool.filter(p => p !== last);
+    const m = pool[Math.floor(Math.random() * pool.length)];
+    try { localStorage.setItem('pb.moment.' + this.id, m); } catch (e) {}
+    return m;
+  }
+  clearMoment() {
+    this.svg.querySelectorAll('.mom-only').forEach(e => e.remove());
+    this.movers = this.movers.filter(m => !m.mom);
+    (this.momTimers || []).forEach(t => { clearInterval(t); clearTimeout(t); }); this.momTimers = [];
+    this.momentName = '';
+  }
+  playMoment(kind) {
+    this.clearMoment(); this.momentName = kind;
+    const T = this.T, M = (layer, html) => { const g = sg('g', { class: 'mom-only' }, layer); g.innerHTML = html; return g; };
+    const mover = (fn, dur) => this.movers.push({ mom: true, t0: performance.now(), fn, dur });
+    const timers = this.momTimers;
+    if (kind === 'petals') {
+      const cols = T.place === 'philly' ? ['#FFFFFF', '#F7D6E0', '#FBE9EF'] : ['#F9C9A8', '#F6B6B6', '#FFE2B8'];
+      let s = ''; for (let i = 0; i < 22; i++) s += `<ellipse class="petal" rx="5.5" ry="3.2" fill="${cols[i % 3]}" style="--x0:${rand(-760, -60).toFixed(0)}px;--y0:${rand(-560, 160).toFixed(0)}px;animation-duration:${rand(8, 13).toFixed(1)}s;animation-delay:${(-rand(0, 12)).toFixed(1)}s"/>`;
+      M(this.$.fx, s);
+    }
+    if (kind === 'butterflies') {
+      const cols = ['#F6C9D6', '#FCE3A0', '#CFE3F7'];
+      [[-60, 60], [150, -60], [-230, 120]].forEach(([x, y], i) => this.addButterfly(false, () => [x, y], 80 + i * 20, cols[i], .8 + i * .15));
+    }
+    if (kind === 'balloon') {
+      const g = M(this.$.fxTop, `<g><ellipse cy="40" rx="30" ry="8" fill="#000" opacity="0"/><path d="M0 -62 C38 -62 44 -18 0 12 C-44 -18 -38 -62 0 -62Z" fill="${T.place === 'philly' ? '#F4A88B' : '#87A47F'}"/><path d="M0 -62 C16 -62 18 -18 0 12 C-18 -18 -16 -62 0 -62Z" fill="#FFF6E6"/><path d="M-12 8 L-8 24 M12 8 L8 24" stroke="#8A6550" stroke-width="1.5"/><rect x="-10" y="22" width="20" height="14" rx="3" fill="#B98B62"/></g>`);
+      mover(t => g.setAttribute('transform', `translate(${(-470 + t * 24).toFixed(1)},${(-300 + Math.sin(t * .6) * 14).toFixed(1)}) scale(.9)`), 44);
+    }
+    if (kind === 'boat') {
+      const P = LAY.pond, night = (this.remoteTod || this.tod).night > .5;
+      const g = M(this.$.fx, `<g class="bt"><path d="M-15 0 L15 0 L10 8 L-10 8Z" fill="#FFFDF7"/><path d="M-5 0 L2 -16 L9 0Z" fill="#F1EADA"/>${night ? `<circle cy="-4" r="16" fill="url(#${this.u}light)"/><circle cy="-2" r="2.2" fill="#FFE08A"/>` : ''}</g>`);
+      mover(t => { const a = t * .22; g.setAttribute('transform', `translate(${(P.x + Math.cos(a) * 64).toFixed(1)},${(P.y + Math.sin(a) * 24).toFixed(1)}) rotate(${(Math.sin(t * 1.4) * 4).toFixed(1)})`); });
+    }
+    if (kind === 'bird') {
+      const [hx, hy] = LAY.house, perch = [hx - 10, hy - 158];
+      const col = T.place === 'philly' ? '#7E9CC4' : '#C98A5A';
+      const g = M(this.$.fx, `<g class="bird"><ellipse cx="0" cy="-8" rx="10" ry="8" fill="${col}"/><ellipse cx="2" cy="-6" rx="6" ry="5" fill="#FFF3E2"/><circle cx="6" cy="-14" r="6" fill="${col}"/><circle cx="8" cy="-15" r="1.4" fill="#2D2A26"/><path d="M11 -13 l6 1.5 l-6 1.5Z" fill="#F2B34D"/><g class="bw"><ellipse class="wing" cx="-6" cy="-12" rx="9" ry="5" fill="${col}"/></g></g>`);
+      const wing = g.querySelector('.bw');
+      mover(t => {
+        let x, y, fly = true, sc = 1;
+        if (t < 4) { const q = ease(t / 4); x = lerp(520, perch[0], q); y = lerp(-440, perch[1], q) - Math.sin(q * Math.PI) * 40; sc = -1; }
+        else if (t < 12) { fly = false; x = perch[0] + Math.sin(t * 1.3) * 10; y = perch[1] - Math.abs(Math.sin(t * 2.6)) * 5 * (Math.sin(t * .8) > .3 ? 1 : 0); sc = Math.sin(t * .7) > 0 ? 1 : -1; }
+        else { const q = ease(Math.min(1, (t - 12) / 4)); x = lerp(perch[0], -560, q); y = lerp(perch[1], -460, q); sc = -1; }
+        wing.style.display = fly ? '' : 'none';
+        g.setAttribute('transform', `translate(${x.toFixed(1)},${y.toFixed(1)}) scale(${-sc * 1.1},1.1)`);
+      }, 17);
+    }
+    if (kind === 'cat') {
+      const night = (this.remoteTod || this.tod).night > .5;
+      const g = M(this.$.fx, `<g><ellipse cy="1" rx="18" ry="5" fill="#000" opacity=".14"/><g class="catb"><path class="ctail" d="M14 -8 Q30 -12 26 -30" stroke="#E2A066" stroke-width="5" fill="none" stroke-linecap="round"/><ellipse cy="-10" rx="17" ry="10" fill="#E2A066"/><circle cx="-12" cy="-22" r="10" fill="#E2A066"/><path d="M-20 -28 l2 -10 l6 7Z M-8 -29 l4 -9 l3 9Z" fill="#E2A066"/><path d="M-6 -12 h8 M-4 -6 h6" stroke="#C98450" stroke-width="2.4"/><circle cx="-16" cy="-22" r="1.4" fill="#3E3A33" class="ceye"/><circle cx="-9" cy="-22" r="1.4" fill="#3E3A33" class="ceye"/></g><g class="czz hid"><text class="zz" x="2" y="-36" font-size="13" fill="${T.ink}">z</text></g></g>`);
+      const pts = LAY.path.slice().reverse(), stop = [LAY.house[0] + 70, LAY.house[1] + 26];
+      const route = pts.slice(0, 7).concat([stop]); let seg = 0, cx = route[0][0], cy = route[0][1], dir = -1;
+      mover((t, dt) => {
+        if (seg < route.length - 1) {
+          const [tx, ty] = route[seg + 1], dx = tx - cx, dy = ty - cy, d = Math.hypot(dx, dy);
+          if (d < 2) seg++; else { cx += dx / d * 34 * dt; cy += dy / d * 34 * dt; if (Math.abs(dx) > .5) dir = Math.sign(dx); }
+        } else { g.querySelector('.czz').classList.toggle('hid', !night); g.querySelectorAll('.ceye').forEach(e => e.setAttribute('ry', 1)); }
+        const walking = seg < route.length - 1, bob = walking ? Math.abs(Math.sin(t * 9)) * 2 : 0;
+        g.setAttribute('transform', `translate(${cx.toFixed(1)},${(cy - bob).toFixed(1)}) scale(${(-dir * .95).toFixed(2)},.95)`);
+      });
+    }
+    if (kind === 'rainbow') {
+      let r = ''; for (let i = 0; i < 70; i++) r += `<path class="rain" d="M0 0 l-6 18" stroke="#EAF4FF" stroke-opacity=".7" stroke-width="2" stroke-linecap="round" style="--x0:${rand(-480, 520).toFixed(0)}px;--y0:${rand(-520, 300).toFixed(0)}px;animation-delay:${(-rand(0, .8)).toFixed(2)}s"/>`;
+      const rain = M(this.$.fxTop, `<rect x="-500" y="-500" width="1000" height="1000" fill="#5B6E8A" opacity=".12"/>${r}`);
+      timers.push(setTimeout(() => {
+        rain.remove();
+        const cols = ['#F2A3A3', '#F6C98B', '#F4E59A', '#AED6A2', '#9EC3E6', '#B9A5D8'];
+        M(this.$.fxTop, `<g class="rainbow" transform="translate(-20,140)">${cols.map((c, i) => `<path d="M${-330 + i * 9} 0 A${330 - i * 9} ${300 - i * 9} 0 0 1 ${330 - i * 9} 0" stroke="${c}" stroke-width="10" fill="none" opacity=".5"/>`).join('')}</g>`);
+        this.sparkle(-20, -150, 12, '#FFF6D2', 120);
+      }, 6000));
+    }
+    if (kind === 'snow') {
+      let s = ''; for (let i = 0; i < 46; i++) s += `<circle class="flake" r="${rand(1.8, 3.6).toFixed(1)}" fill="#fff" opacity=".9" style="--x0:${rand(-500, 500).toFixed(0)}px;--sw:${rand(-40, 40).toFixed(0)}px;animation-duration:${rand(8, 14).toFixed(1)}s;animation-delay:${(-rand(0, 14)).toFixed(1)}s"/>`;
+      M(this.$.fxTop, s);
+    }
+    if (kind === 'shooting') { const go = () => this.shootingStar(false); go(); timers.push(setInterval(go, 3500)); }
+    if (kind === 'lanterns') {
+      let s = ''; for (let i = 0; i < 7; i++) s += lanternSVG(rand(-260, 260), rand(80, 300), 700, rand(13, 18), -rand(0, 14));
+      M(this.$.fxTop, s);
+    }
+    if (kind === 'fireflies') {
+      const g = M(this.$.fxTop, '');
+      mover(t => {
+        if (!g.childNodes.length) { let s = ''; for (let i = 0; i < 14; i++) s += `<circle class="ffx" r="3.4" fill="#F6FFB0" style="filter:drop-shadow(0 0 6px #F0FF9A)"/>`; g.innerHTML = s; }
+        [...g.childNodes].forEach((c, i) => { const a = t * (.5 + i * .04) + i; c.setAttribute('cx', (this.main.x + Math.sin(a) * (50 + i * 6)).toFixed(1)); c.setAttribute('cy', (this.main.y - 60 + Math.cos(a * 1.3) * (30 + i * 3)).toFixed(1)); c.setAttribute('opacity', (.5 + .5 * Math.sin(t * 3 + i)).toFixed(2)); });
+      });
+    }
+    this.notify();
+  }
+
+  /* ---------- time machine ---------- */
+  toggleTimeMachine() { if (this.tm) this.endTimeMachine(); else this.startTimeMachine(); }
+  startTimeMachine() {
+    if (!this.present || this.tg) return;
+    const hist = (this.s.history || {})[this.shows] || {};
+    const now = Date.now();
+    this.tm = { t0: performance.now(), p: 0, phase: 'rewind', hist, start: now - 864e5, end: now, drag: false, lastKey: '' };
+    this.tween = { t0: performance.now(), dur: 1600, from: { h: this.hands.h.a, m: this.hands.m.a }, to: { h: this.hands.h.a - 90, m: this.hands.m.a - 1080 } };
+    this.$.veil.style.transition = 'opacity 1.5s'; this.$.veil.setAttribute('opacity', .22); this.$.vig.style.transition = 'opacity 1.5s'; this.$.vig.setAttribute('opacity', 1);
+    this.$.dial.style.opacity = .25;
+    this.buildTMRing();
+    this.notify();
+  }
+  buildTMRing() {
+    const tm = this.tm, T = this.T, tz = this.remoteTz, R = 405;
+    const ang = ts => { const l = local(ts, tz); return (l.h + l.mi / 60) / 24 * 360; };
+    tm.ang = ang; tm.a0 = ang(tm.start);
+    const entries = Object.values(tm.hist).filter(e => e.ts >= tm.start - 864e5).sort((a, b) => a.ts - b.ts);
+    let s = `<circle r="${R}" fill="none" stroke="#FFFBF0" stroke-opacity=".5" stroke-width="18"/>`;
+    for (let i = 0; i < entries.length; i++) {
+      const e = entries[i], s0 = Math.max(e.ts, tm.start), s1 = i + 1 < entries.length ? entries[i + 1].ts : tm.end;
+      if (s1 <= tm.start) continue;
+      const a0 = tm.a0 + (s0 - tm.start) / 864e5 * 360, a1 = tm.a0 + (s1 - tm.start) / 864e5 * 360;
+      if (a1 - a0 < .5) continue;
+      s += `<path d="${arcPath(R, a0 + .6, a1 - .6)}" stroke="${e.place === 'home' ? T.homeArc : T.outArc}" stroke-width="13" fill="none" stroke-linecap="round"/>`;
+    }
+    for (let hr = 0; hr < 24; hr += 3) {
+      const [x, y] = pt(R + 30, hr * 15);
+      const lab = hr === 0 ? '☾' : hr === 12 ? '☀' : (T.lang === 'zh' ? hr + '' : (hr % 12) + (hr < 12 ? 'a' : 'p'));
+      s += `<text x="${x.toFixed(0)}" y="${(y + 6).toFixed(0)}" text-anchor="middle" font-size="${hr % 12 ? 16 : 22}" fill="${T.ink}" stroke="#FFFBF0" stroke-width="4" paint-order="stroke">${lab}</text>`;
+    }
+    s += `<text class="tm-cap" x="0" y="-306" text-anchor="middle" font-size="30" font-style="italic" fill="${T.ink}" stroke="#FFFBF0" stroke-width="6" paint-order="stroke"></text>`;
+    this.$.tmRing.innerHTML = s; this.tmCap = this.$.tmRing.querySelector('.tm-cap');
+    this.$.tmRing.style.transition = 'opacity 1.2s'; this.$.tmRing.setAttribute('opacity', 0);
+  }
+  endTimeMachine(silent) {
+    if (!this.tm) return;
+    this.tm = null; this.tween = null;
+    this.$.veil.setAttribute('opacity', 0); this.$.vig.setAttribute('opacity', 0); this.$.tmRing.setAttribute('opacity', 0);
+    this.$.mem.setAttribute('opacity', 0); this.$.hh.style.opacity = 1; this.$.hm.style.opacity = 1; this.$.dial.style.opacity = 1;
+    this.$.digital.style.opacity = this.present ? .9 : 0;
+    if (this.present && !silent) { this.wiggleT0 = performance.now(); this.applyStatus(this.status); }
+    this.notify();
+  }
+  tmPointer(e, kind) {
+    const tm = this.tm; if (!tm || tm.phase !== 'play') return;
+    if (kind === 'down') tm.drag = true;
+    if (!tm.drag) return;
+    const r = this.svg.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * 1000 - 500, y = (e.clientY - r.top) / r.height * 1000 - 500;
+    let a = Math.atan2(x, -y) / DEG; if (a < 0) a += 360;
+    tm.p = (((a - tm.a0) % 360) + 360) % 360 / 360; tm.userT = performance.now();
+  }
+  tickTimeMachine(now, dt) {
+    const tm = this.tm; if (!tm) return;
+    const t = (now - tm.t0) / 1000;
+    if (tm.phase === 'rewind' && t > 1.6) {
+      tm.phase = 'play'; this.tween = null;
+      this.$.hh.style.opacity = 0; this.$.hm.style.opacity = 0; this.$.mem.setAttribute('opacity', 1); this.$.tmRing.setAttribute('opacity', 1);
+      this.$.digital.style.opacity = 0;
+    }
+    if (tm.phase !== 'play') return;
+    if (!tm.drag && !(tm.userT && now - tm.userT < 2500)) tm.p = Math.min(1, tm.p + dt / 16);
+    const T = tm.start + tm.p * 864e5;
+    this.$.mem.setAttribute('transform', `rotate(${(tm.a0 + tm.p * 360).toFixed(2)})`);
+    const st = statusAt(tm.hist, T) || { place: 'home', activity: 'resting' };
+    const l = local(T, this.remoteTz), hf = l.h + l.mi / 60;
+    this.remoteTod = todFor(hf);
+    const key = st.place + st.activity + (this.remoteTod.night > .5 ? 'n' : 'd');
+    if (key !== tm.lastKey) {
+      tm.lastKey = key; this.applyStatus(st);
+      this.main.place(this.main.startPos()); this.main.atAnchor = !!this.main.m.at;
+      if (this.main.vis > .5) this.sparkle(this.main.x, this.main.y - 40, 6, '#FFF3C4', 50);
+    }
+    const nowL = local(Date.now(), this.remoteTz);
+    const zh = this.T.lang === 'zh';
+    const part = hf < 5 ? (zh ? '深夜' : 'late night') : hf < 9 ? (zh ? '清晨' : 'early morning') : hf < 12 ? (zh ? '上午' : 'morning') : hf < 14 ? (zh ? '中午' : 'midday') : hf < 18 ? (zh ? '下午' : 'afternoon') : hf < 21 ? (zh ? '傍晚' : 'evening') : (zh ? '夜里' : 'night');
+    const day = l.d === nowL.d ? (zh ? '今天' : 'today') : (zh ? '昨天' : 'yesterday');
+    this.tmCap.textContent = `${day} · ${part}`;
+    if (tm.p >= 1 && !tm.drag) { if (!tm.doneT) tm.doneT = now; if (now - tm.doneT > 2200) this.endTimeMachine(); }
+  }
+
+  /* ---------- per-frame ---------- */
+  frame(now, dt) {
+    this.det.tick(now);
+    const ts = Date.now();
+    if (this.present && ts - this.lastBeat > 5000) { this.lastBeat = ts; HUB.set(['presence', this.id], { present: true, session: this.session, ts }); }
+    if (this.s && this.s.presence[this.shows]) {
+      const rp = this.s.presence[this.shows]; const rpNow = !!rp.present && ts - (rp.ts || 0) < 25000;
+      if (rpNow !== this.remotePresent) { this.remotePresent = rpNow; this.checkTogether(); }
+    }
+    const l = local(ts, this.tz);
+    const sec = l.s + l.ms / 1000, min = l.mi + sec / 60, hr = (l.h % 12) + min / 60;
+    const realM = min * 6, realH = hr * 30, realS = sec * 6;
+    if (!this.handsInit) { this.hands.h.a = realH; this.hands.m.a = realM; this.handsInit = true; }
+    // ambient: your own time of day. presence: the light of THEIR sky.
+    const ownTod = todFor(l.h + min / 60);
+    let target = ownTod;
+    if (this.present && !this.tm) target = this.remoteTod = todFor(this.hourIn(this.remoteTz));
+    else if (this.tm && this.remoteTod) target = this.remoteTod;
+    const k = 1 - Math.exp(-dt * 1.2);
+    this.tod.night = lerp(this.tod.night, target.night, k); this.tod.golden = lerp(this.tod.golden, target.golden, k);
+    const N = this.tod.night;
+    this.$.tintNight.setAttribute('opacity', (N * (this.tg ? .3 : .55)).toFixed(3));
+    this.$.tintGold.setAttribute('opacity', (this.tod.golden * .14 + (this.tg ? .07 : 0)).toFixed(3));
+    this.$.nightfx.setAttribute('opacity', N.toFixed(3));
+    this.$.chars.style.filter = N > .02 ? `brightness(${(1 - .22 * N).toFixed(3)}) saturate(${(1 - .2 * N).toFixed(3)})` : '';
+    const lit = this.house === 'away' ? .08 : 1;
+    this.$.winglow.forEach(w => w.setAttribute('opacity', lit.toFixed(2)));
+    this.$.win.forEach(w => w.setAttribute('fill', this.house === 'away' ? '#9AA3AE' : (N > .4 ? '#FFD982' : '#F7E8C6')));
+    this.focusV = lerp(this.focusV || 0, this.focus, 1 - Math.exp(-dt * 2));
+    this.$.focus.setAttribute('opacity', (this.focusV * (1 - N * .4)).toFixed(3));
+    const p = this.present ? 0 : this.det.progress;
+    this.$.gBack.style.setProperty('--open', (1 - .2 * N).toFixed(3));
+    this.$.gBack.style.setProperty('--slow', (p > 0 ? .45 : 1 + .8 * N).toFixed(2));
+    const C = 2 * Math.PI * 470;
+    this.$.noticing.setAttribute('stroke-dasharray', `${(C * p).toFixed(1)} ${C}`);
+    this.$.noticing.setAttribute('opacity', p > 0 ? (.55 * Math.min(1, p * 3)).toFixed(2) : 0);
+
+    const H = this.hands, wigT = (now - this.wiggleT0) / 1000;
+    const wig = wigT < 1.2 ? 13 * Math.exp(-wigT / .38) * Math.sin(wigT * 19) : 0;
+    const near = (a, cur) => a + 360 * Math.round((cur - a) / 360);
+    if (this.tween) {
+      const q = ease(clamp((now - this.tween.t0) / this.tween.dur, 0, 1));
+      H.h.a = lerp(this.tween.from.h, this.tween.to.h, q); H.m.a = lerp(this.tween.from.m, this.tween.to.m, q); H.h.v = H.m.v = 0;
+    } else {
+      let th, tmA;
+      if (now < this.freezeUntil) { th = H.h.a; tmA = H.m.a; }
+      else if (this.present) { const pa = this.place === 'out' ? OUT_ANGLE : HOME_ANGLE; th = near(pa - 7, H.h.a); tmA = near(pa + 3, H.m.a); }
+      else { th = near(realH, H.h.a); tmA = near(realM, H.m.a); }
+      if (this.present || this.returning || now < this.freezeUntil) {
+        const step = (o, tg) => { const acc = 85 * (tg - o.a) - 10.5 * o.v; o.v += acc * dt; o.a += o.v * dt; };
+        step(H.h, th); step(H.m, tmA);
+        if (this.returning && now > this.freezeUntil && Math.abs(H.h.a - th) < .3 && Math.abs(H.m.a - tmA) < .3 && Math.abs(H.m.v) < 2) this.returning = false;
+      } else { H.h.a = th; H.m.a = tmA; H.h.v = H.m.v = 0; }
+    }
+    this.$.hh.setAttribute('transform', `rotate(${(H.h.a + wig * .7).toFixed(2)})`);
+    this.$.hm.setAttribute('transform', `rotate(${(H.m.a - wig).toFixed(2)})`);
+    this.$.hs.setAttribute('transform', `rotate(${realS.toFixed(2)})`);
+    if (this.present) this.$.digital.textContent = `${String(l.h).padStart(2, '0')}${l.s % 2 ? ' ' : ':'}${String(l.mi).padStart(2, '0')}`;
+    for (const m of this.movers) { const t = (now - m.t0) / 1000; if (m.dur && t > m.dur) { m.done = true; continue; } m.fn(t, dt); }
+    if (this.movers.some(m => m.done)) this.movers = this.movers.filter(m => !m.done);
+    this.tickTogether(now, dt);
+    this.tickTimeMachine(now, dt);
+    this.main.update(dt); this.guest.update(dt);
+    // keep the nearer character in front
+    if ((this.main.y > this.guest.y) !== (this.main.g.nextSibling === null)) this.$.chars.appendChild(this.main.y > this.guest.y ? this.main.g : this.guest.g);
+  }
+  stateLabel() {
+    if (this.tm) return 'time machine';
+    if (this.tg) return 'together ✦ · ' + this.tg.variant;
+    if (this.present) return 'present — showing ' + PEOPLE[this.shows].name + (this.momentName ? ' · moment: ' + this.momentName : '');
+    if (this.det.near) return `noticing… ${(this.det.progress * DWELL_MS / 1000).toFixed(1)}s`;
+    return 'ambient clock';
+  }
+}
+
+/* ---------------------------- loop ---------------------------- */
+const CLOCKS = [];
+let lastT = performance.now();
+function loop(now) {
+  const dt = Math.min(.05, (now - lastT) / 1000); lastT = now;
+  for (const c of CLOCKS) c.frame(now, dt);
+  requestAnimationFrame(loop);
+}
+
+/* ---------------------------- dev controls ---------------------------- */
+const ACTS = [['resting', 'Rest'], ['walking', 'Walk'], ['active', 'Active / cycle'], ['casual', 'Casual']];
+function setStatus(person, patch) {
+  const cur = HUB.state.status[person] || {}, next = { ...cur, ...patch, ts: Date.now() };
+  HUB.set(['status', person], next);
+  HUB.set(['history', person, String(next.ts)], { ts: next.ts, place: next.place, activity: next.activity });
+}
+function growOn(clockId) {
+  // simulate the OTHER person having paused at their clock
+  const fake = CLOCKS.find(c => c.shows === clockId) || { shows: clockId, id: other(clockId), s: HUB.state };
+  fake.s = HUB.state; Clock.prototype.registerVisit.call(fake);
+}
+function presenceControls(box, c) {
+  const row = h('div', { class: 'row' }, box);
+  const ap = h('button', { class: 'b', text: 'Approach & stay', onclick: () => { Sound.ensure(); c.det.setNear(true); } }, row);
+  h('button', { class: 'b', text: 'Leave', onclick: () => c.det.setNear(false) }, row);
+  h('button', { class: 'b', text: 'Skip 3s wait', onclick: () => { Sound.ensure(); c.det.skip(); } }, row);
+  const tmb = h('button', { class: 'b', text: 'Time Machine', onclick: () => c.toggleTimeMachine() }, row);
+  h('button', { class: 'b', text: 'Another moment', onclick: () => { if (c.present && !c.tg) c.playMoment(c.pickMoment()); } }, row);
+  const ps = h('div', { class: 'pstate' }, box);
+  setInterval(() => { ps.textContent = '● ' + c.stateLabel(); ap.classList.toggle('on', c.det.near); tmb.disabled = !c.present; tmb.style.opacity = c.present && !c.tg ? 1 : .4; }, 120);
+}
+function cameraControls(box, c) {
+  const row = h('div', { class: 'row' }, box);
+  h('span', { class: 'lab', text: 'Camera presence (front camera, processed on this device only)' }, row);
+  const cb = h('button', { class: 'b', text: 'Use camera', onclick: () => { if (Camera.state === 'running' || Camera.state === 'starting') { Camera.stop(c.det); } else { Camera.owner = c; Camera.start(c.det); } } }, row);
+  const pv = h('button', { class: 'b', text: 'Preview', onclick: () => {
+    if (Camera.preview) { Camera.preview.remove(); Camera.preview = null; }
+    else { Camera.preview = h('canvas', { class: 'campreview', width: 200, height: 150 }, document.body); }
+    pv.classList.toggle('on', !!Camera.preview);
+  } }, row);
+  const st = h('div', { class: 'pstate' }, box);
+  setInterval(() => { const on = Camera.state === 'running' && Camera.owner === c; cb.classList.toggle('on', on || (Camera.state === 'starting' && Camera.owner === c)); st.textContent = Camera.owner === c && Camera.state !== 'off' ? '◉ ' + Camera.detail + (on ? (Camera.near ? ' · someone is here' : ' · nobody close') : '') : ''; }, 200);
+}
+function statusControls(box, person) {
+  const row = h('div', { class: 'row' }, box);
+  h('span', { class: 'lab', text: `${PEOPLE[person].name}'s real-world status (from phone, simulated)` }, row);
+  const bs = {};
+  for (const pl of ['home', 'out']) bs[pl] = h('button', { class: 'b', text: pl === 'home' ? 'Home' : 'Out', onclick: () => setStatus(person, { place: pl }) }, row);
+  const row2 = h('div', { class: 'row' }, box);
+  for (const [a, lab] of ACTS) bs[a] = h('button', { class: 'b', text: lab, onclick: () => setStatus(person, { activity: a }) }, row2);
+  HUB.subscribe(s => { const st = s.status[person] || {}; for (const k in bs) bs[k].classList.toggle('on', st.place === k || st.activity === k); });
+}
+function globalControls(box) {
+  const mk = (title) => { const c = h('div', { class: 'ctlcard' }, box); h('h4', { text: title }, c); return c; };
+  const t = mk('Togetherness');
+  let r = h('div', { class: 'row' }, t);
+  h('button', { class: 'b hot', text: 'Both approach & stay', onclick: () => { Sound.ensure(); CLOCKS.forEach((c, i) => setTimeout(() => c.det.setNear(true), i * 1400)); } }, r);
+  h('button', { class: 'b', text: 'Both leave', onclick: () => CLOCKS.forEach(c => c.det.setNear(false)) }, r);
+  h('div', { class: 'pstate', text: 'They start 1.4 s apart on purpose: being there at the same time is enough.' }, t);
+  const f = mk('Flowers');
+  r = h('div', { class: 'row' }, f);
+  h('button', { class: 'b', text: 'Grow on parents’ clock', onclick: () => growOn('parents') }, r);
+  h('button', { class: 'b', text: 'Grow on Yichen’s clock', onclick: () => growOn('me') }, r);
+  r = h('div', { class: 'row' }, f);
+  h('button', { class: 'b', text: 'Fast-forward a month', onclick: () => { for (let i = 0; i < 40; i++) setTimeout(() => { growOn('parents'); growOn('me'); }, i * 60); } }, r);
+  h('button', { class: 'b', text: 'Reset everything', onclick: () => { if (HUB.kind === 'local') { HUB.reset({}); seedIfNeeded(); } else HUB.reset({}); } }, r);
+  const s = mk('Sound & sync');
+  r = h('div', { class: 'row' }, s);
+  const sb = h('button', { class: 'b' + (Sound.on ? ' on' : ''), text: 'Sound', onclick: () => { Sound.on = !Sound.on; Sound.ensure(); sb.classList.toggle('on', Sound.on); } }, r);
+  const badge = h('span', { class: 'badge ' + (HUB.kind === 'local' ? 'sim' : 'live') }, r);
+  r = h('div', { class: 'row' }, s);
+  h('button', { class: 'b', text: 'Test phone push', onclick: () => Push.send(CLOCKS[0].id, true) }, r);
+  const pl = h('div', { class: 'pstate' }, s);
+  setInterval(() => { pl.textContent = 'push: ' + (Push.cfg ? Push.cfg.replace(/:(.{4}).*/, ':$1…') : 'off') + (Push.last ? ' · ' + Push.last : ''); }, 500);
+  const lab = h('div', { class: 'pstate' }, s);
+  setInterval(() => { badge.textContent = HUB.kind === 'local' ? 'Simulated' : 'Live'; lab.textContent = HUB.label(); }, 500);
+}
+
+/* ---------------------------- pages ---------------------------- */
+function sensorAdapter(c) {
+  // Optional: real hardware. ?sensor=ws://<esp32-ip>:81  — sends "near"/"far" or {"near":true}
+  const url = Q.get('sensor'); if (!url) return;
+  const connect = () => {
+    let ws; try { ws = new WebSocket(url); } catch (e) { return; }
+    ws.onmessage = e => { let v = e.data; try { const j = JSON.parse(v); v = j.near; } catch (_) { v = v === 'near' || v === '1'; } c.det.setNear(!!v); };
+    ws.onclose = () => { c.det.setNear(false); setTimeout(connect, 3000); };
+  };
+  connect();
+}
+async function keepAwake() {
+  try { if ('wakeLock' in navigator) { let lock = await navigator.wakeLock.request('screen'); document.addEventListener('visibilitychange', async () => { if (document.visibilityState === 'visible') lock = await navigator.wakeLock.request('screen'); }); } } catch (e) {}
+}
+function clockPage(id) {
+  document.body.className = 'clockpage';
+  const app = document.getElementById('app');
+  const stage = h('div', { class: 'stage' }, app);
+  const scale = parseFloat(Q.get('scale') || '0.96');
+  stage.style.setProperty('--size', `calc(${scale * 100}vmin)`);
+  if (Q.get('ox')) stage.style.setProperty('--ox', Q.get('ox') + 'px');
+  if (Q.get('oy')) stage.style.setProperty('--oy', Q.get('oy') + 'px');
+  const tz = Q.get('tz') === 'device' ? DEVICE_TZ : (Q.get('tz') || undefined);
+  const c = new Clock(stage, id, { tz }); CLOCKS.push(c);
+  sensorAdapter(c); keepAwake();
+  // hidden developer panel: press "d", add ?dev=1, or tap the top-left corner three times
+  const panel = h('div', { class: 'devpanel' + (Q.get('dev') ? '' : ' hidden') }, app);
+  const syncDev = () => document.body.classList.toggle('devopen', !panel.classList.contains('hidden'));
+  new MutationObserver(syncDev).observe(panel, { attributes: true }); syncDev();
+  h('h4', { text: (id === 'parents' ? 'Parents’ clock' : 'Yichen’s clock') + ' · developer' }, panel);
+  presenceControls(panel, c);
+  cameraControls(panel, c);
+  statusControls(panel, c.shows);
+  globalControls(panel);
+  // On the installed iPads: ?camera=1 starts the front camera automatically.
+  if (Q.get('camera') === '1') {
+    Camera.owner = c; Camera.start(c.det);
+    window.addEventListener('pointerdown', () => { if (Camera.state === 'error') { Camera.state = 'off'; Camera.start(c.det); } });
+  }
+  if (Q.get('camdebug') === '1') Camera.preview = h('canvas', { class: 'campreview', width: 200, height: 150 }, document.body);
+  h('div', { class: 'pstate', html: `<a style="color:#e3c995" href="#demo">open side-by-side demo</a>` }, panel);
+  window.addEventListener('keydown', e => {
+    if (e.key === 'd') panel.classList.toggle('hidden');
+    if (e.key === 'p') c.det.setNear(!c.det.near);
+  });
+  let taps = [];
+  window.addEventListener('pointerdown', e => {
+    Sound.ensure();
+    if (e.clientX < 90 && e.clientY < 90) { const n = performance.now(); taps = taps.filter(t => n - t < 900); taps.push(n); if (taps.length >= 3) { panel.classList.toggle('hidden'); taps = []; } }
+  });
+}
+function demoPage() {
+  document.body.className = 'demo';
+  const app = document.getElementById('app');
+  const w = h('div', { class: 'demo-wrap' }, app);
+  const head = h('div', { class: 'demo-head' }, w);
+  h('h1', { text: 'Peekabloom' }, head); h('i', { text: 'a little peek, a little bloom' }, head);
+  const pair = h('div', { class: 'pair' }, w);
+  const cols = {
+    parents: ['Parents’ clock', 'in China · Shanghai time · shows Yichen (Pip)'],
+    me: ['Yichen’s clock', 'in Philadelphia · local time · shows Mom & Dad (the Tangyuans)']
+  };
+  for (const id of ['parents', 'me']) {
+    const col = h('div', { class: 'clockcol' }, pair);
+    const box = h('div', { class: 'clockbox' }, col);
+    const c = new Clock(box, id); CLOCKS.push(c);
+    const cap = h('div', { class: 'cap' }, col); h('b', { text: cols[id][0] }, cap); h('small', { text: cols[id][1] }, cap);
+    const card = h('div', { class: 'ctlcard' }, col);
+    h('h4', { text: 'Someone at this clock' }, card);
+    presenceControls(card, c);
+    cameraControls(card, c);
+    statusControls(card, c.shows);
+    h('div', { class: 'pstate', html: `open on its own: <a style="color:#e3c995" href="#${id}">#${id}</a> &nbsp;(press <b>d</b> there for controls)` }, card);
+  }
+  const g = h('div', { class: 'global' }, w); globalControls(g);
+  h('div', {
+    class: 'note', html: `<b>How to read this.</b> Each clock shows the <i>other</i> person. Press <b>Approach &amp; stay</b> and wait three seconds: the hands wiggle and turn toward their house (home) or the pond and woods (out), the other person's character appears, and a bud starts growing on the <i>other</i> clock. Do it on both sides to see the two clocks come together.<br><br>
+    <b>Simulated vs. live.</b> Everything on this page runs in this browser. Without a <code>?db=</code> parameter the two clocks share state locally, and the standalone tabs stay in sync only on the same computer. Add <code>?db=https://&lt;project&gt;-default-rtdb.firebaseio.com</code> to make two iPads share presence, status and gardens through Firebase. Status and activity always come from these controls for now; the phone integrations are not built yet.`
+  }, w);
+}
+
+/* ---------------------------- boot ---------------------------- */
+seedIfNeeded();
+const hash = location.hash.replace(/^#\/?/, '');
+const last = location.pathname.replace(/\/+$/, '').split('/').pop();
+const route = ['parents', 'me', 'demo'].includes(hash) ? hash : (['parents', 'me'].includes(last) ? last : 'demo');
+if (route === 'demo') demoPage(); else clockPage(route);
+window.addEventListener('hashchange', () => location.reload());
+requestAnimationFrame(loop);
+window.Peekabloom = { HUB, CLOCKS, setStatus, growOn };
+})();
+</script>
+</body>
+</html>
